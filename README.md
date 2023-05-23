@@ -34,6 +34,10 @@ steps:
 
 In this example, we allocate 16 tasks, with each task using 1 CPU and 1024 MB of RAM. The `enableLogging` parameter allows the application to send logs to the DeepSquare logging system for easy monitoring. The `steps` section defines the execution steps, including the command to run and the container image to use.
 
+## Documentation
+
+If you need more information on how to write workflow files, please refer to our [documentation](https://docs.deepsquare.run/docs/deploy-deepsquare/overview). It provides detailed guidance on utilizing the DeepSquare infrastructure and writing efficient workflows.
+
 ## Contributing
 
 We welcome contributions from the community to expand the collection of workflows in this repository. By doing so, you help others get started and unlock the full potential of DeepSquare. If you would like to contribute a new workflow, please refer to the [contributing guidelines](CONTRIBUTING.md).
