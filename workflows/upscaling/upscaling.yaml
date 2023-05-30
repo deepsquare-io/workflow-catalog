@@ -1,3 +1,4 @@
+---
 enableLogging: true
 resources:
   tasks: 4

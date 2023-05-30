@@ -22,8 +22,6 @@ The workflow steps include:
 
 ## Workflow Implementation
 
-We use YAML for the sake of readability. If you wish to execute the workflow on the dev environment, an online YAML to JSON converter can be used.
-
 Resource allocation, environment variables, and input/output are as follows:
 
 ```yaml
