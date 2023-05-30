@@ -1,0 +1,102 @@
+{
+  "enableLogging": true,
+  "resources": {
+    "tasks": 4,
+    "cpusPerTask": 8,
+    "memPerCpu": 8000,
+    "gpusPerTask": 1
+  },
+  "input": {
+    "s3": {
+      "region": "region",
+      "bucketUrl": "s3://test",
+      "path": "/test",
+      "accessKeyId": "accessKeyId",
+      "secretAccessKey": "secretAccessKey",
+      "endpointUrl": "https://example"
+    }
+  },
+  "output": {
+    "s3": {
+      "region": "region",
+      "bucketUrl": "s3://test",
+      "path": "/test",
+      "accessKeyId": "accessKeyId",
+      "secretAccessKey": "secretAccessKey",
+      "endpointUrl": "https://example"
+    }
+  },
+  "continuousOutputSync": true,
+  "env": [
+    {
+      "key": "IS_VIDEO",
+      "value": "false"
+    },
+    {
+      "key": "IS_FACE",
+      "value": "false"
+    },
+    {
+      "key": "IS_ANIME",
+      "value": "false"
+    }
+  ],
+  "steps": [
+    {
+      "name": "compute-frames",
+      "run": {
+        "container": {
+          "deepsquareHosted": true,
+          "apptainer": true,
+          "registry": "registry-1.deepsquare.run",
+          "image": "library/upscaling:latest"
+        },
+        "shell": "/bin/bash",
+        "command": "set -e\n\nmkdir -p \"${STORAGE_PATH}/input_frames/\"\nmkdir -p \"${STORAGE_PATH}/output_frames/\"\n\n# Look for video and images\nvideosFound=\"$(find \"${DEEPSQUARE_INPUT}\" -maxdepth 1 -type f -exec file -N -i -- {} + | sed -n 's!: video/[^:]*$!!p' | wc -l)\"\nimagesFound=\"$(find \"${DEEPSQUARE_INPUT}\" -maxdepth 1 -type f -exec file -N -i -- {} + | sed -n 's!: image/[^:]*$!!p' | wc -l)\"\n\nif \"${IS_VIDEO}\"; then\n  if [[ ${videosFound} -ge \"1\" ]]; then\n    mkdir -p \"${STORAGE_PATH}/input_video/\"\n\n    # Only consider the first video on the list\n    videoSourceFile=\"$(find \"${DEEPSQUARE_INPUT}\" -maxdepth 1 -type f -exec file -N -i -- {} + | sed -n 's!: video/[^:]*$!!p' | head -1)\"\n\n    # Extract all the frames in the input_frames directory\n    ffmpeg -i \"${videoSourceFile}\" -qscale:v 1 -qmin 1 -qmax 1 -vsync 0 \"${STORAGE_PATH}/input_frames/frame%08d.png\"\n  else\n      echo \"No input video found, exiting\" && exit 1\n  fi\nelse\n  if [[ ${imagesFound} -ge \"1\" ]]; then\n    # Copy the frames in the input_frames directory\n    find \"${DEEPSQUARE_INPUT}\" -maxdepth 1 -type f -exec file -N -i -- {} + | sed -n 's!: image/[^:]*$!!p' | xargs -I{} cp \"{}\" \"${STORAGE_PATH}/input_frames/\" || (echo \"Zero picture found\" && exit 1)\n  else\n    echo \"No input picture found, exiting\" && exit 1\n  fi\nfi\n\n# Compute the number of frames and frames per task\ntotalFrames=$(find \"${STORAGE_PATH}/input_frames/\" -type f | wc -l)\nframesPerTask=$(( (totalFrames + NTASKS -1) /NTASKS))\n\n# Distribute the frames into batches\nfor i in $(seq 1 \"$NTASKS\"); do\n  cd \"${STORAGE_PATH}/input_frames/\"\n  mkdir -p \"${STORAGE_PATH}/input_frames/batch-${i}\"\n  if \"${IS_VIDEO}\"; then\n    mv $(find . -maxdepth 1 -type f -exec file -N -i -- {} + | sed -n 's!: image/[^:]*$!!p' | head -${framesPerTask}) \"${STORAGE_PATH}/input_frames/batch-${i}/\"\n  else\n    find . -maxdepth 1 -type f -exec file -N -i -- {} + | sed -n 's!: image/[^:]*$!!p' | head -${framesPerTask} | while IFS= read -r file; do\n      mv \"$file\" \"${STORAGE_PATH}/input_frames/batch-${i}/\"\n    done\n  fi\n\n  cd -\ndone"
+      }
+    },
+    {
+      "name": "upscaling-loop",
+      "for": {
+        "parallel": true,
+        "range": {
+          "begin": 1,
+          "end": 4
+        },
+        "steps": [
+          {
+            "name": "upscale",
+            "run": {
+              "container": {
+                "deepsquareHosted": true,
+                "apptainer": true,
+                "registry": "registry-1.deepsquare.run",
+                "image": "library/upscaling:latest"
+              },
+              "shell": "/bin/bash",
+              "command": "set -e\n\necho \"Upscaling batch ${index}\"\n/opt/Real-ESRGAN/upscale.sh  \"${STORAGE_PATH}/input_frames/batch-${index}\""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "re-encode-video",
+      "run": {
+        "container": {
+          "deepsquareHosted": true,
+          "apptainer": true,
+          "registry": "registry-1.deepsquare.run",
+          "image": "library/upscaling:latest"
+        },
+        "resources": {
+          "tasks": 1,
+          "cpusPerTask": 8,
+          "memPerCpu": 8000,
+          "gpusPerTask": 0
+        },
+        "command": "set -e\n\nvideoSourceFile=\"$(find \"${DEEPSQUARE_INPUT}\" -maxdepth 1 -type f -exec file -N -i -- {} + | sed -n 's!: video/[^:]*$!!p' | head -1)\"\n\nif \"${IS_VIDEO}\"; then\n  source_fps=\"$(ffmpeg -i \"${videoSourceFile}\" 2>&1 | sed -n \"s/.*, \\(.*\\) fp.*/\\1/p\")\"\n  ffmpeg -r \"${source_fps}\" -i \"${STORAGE_PATH}/output_frames/frame%08d_out.png\" -i \"${videoSourceFile}\" -map 0:v:0 -map 1:a:0 -c:a copy -c:v libx264 -r \"${source_fps}\" -pix_fmt yuv420p \"${DEEPSQUARE_OUTPUT}/result.mp4\"\nfi"
+      }
+    }
+  ]
+}
