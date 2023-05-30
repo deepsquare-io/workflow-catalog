@@ -1,0 +1,17 @@
+{
+  "resources": {
+    "tasks": 1,
+    "gpusPerTask": 0,
+    "cpusPerTask": 1,
+    "memPerCpu": 1024
+  },
+  "enableLogging": true,
+  "steps": [
+    {
+      "name": "hello world",
+      "run": {
+        "command": "echo \"Hello World\""
+      }
+    }
+  ]
+}
