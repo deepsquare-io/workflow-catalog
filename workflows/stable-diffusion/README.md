@@ -1,10 +1,10 @@
-Sure, here's the text in a format that's suitable for a README.md file:
-
 # Stable Diffusion
 
 DeepSquare integrates the neural network text-to-image model, `Stable Diffusion`.
 
 This guide illustrates how we designed and implemented the workflow to execute Stable Diffusion on the DeepSquare Grid.
+
+[Click here](https://docs.deepsquare.run/workflow/samples/stable-diffusion) to know more about the Stable-diffusion workflow in the documentation.
 
 ## Design
 

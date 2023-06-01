@@ -1,6 +1,8 @@
 # Image Upscaler
 
-DeepSquare integrates the neural network model optimised image upscaler, Real-ESRGAN. This guide illustrates the workflow design and implementation for executing Real-ESRGAN on the DeepSquare Grid.
+DeepSquare integrates the neural network model optimised image upscaler, `Real-ESRGAN`. This guide illustrates the workflow design and implementation for executing Real-ESRGAN on the DeepSquare Grid.
+
+[Click here](https://docs.deepsquare.run/workflow/samples/upscaling) to know more about the Image Uspcaling workflow in the documentation.
 
 ## Workflow Design
 
@@ -22,58 +24,23 @@ The workflow steps include:
 
 ## Workflow Implementation
 
-Resource allocation, environment variables, and input/output are as follows:
-
-```yaml
-enableLogging: true
-resources:
-  tasks: 4
-  cpusPerTask: 8
-  memPerCpu: 8000
-  gpusPerTask: 1
-input:
-  s3:
-    region: region
-    bucketUrl: s3://test
-    path: '/test'
-    accessKeyId: accessKeyId
-    secretAccessKey: secretAccessKey
-    endpointUrl: https://example
-output:
-  s3:
-    region: region
-    bucketUrl: s3://test
-    path: '/test'
-    accessKeyId: accessKeyId
-    secretAccessKey: secretAccessKey
-    endpointUrl: https://example
-continuousOutputSync: true
-env:
-  - key: IS_VIDEO
-    value: 'false' # Change this value if you want to render a video or an image
-  - key: IS_FACE
-    value: 'false'
-  - key: IS_ANIME
-    value: 'false'
-```
-
-## Compute the number of frames
+### Compute the number of frames
 
 The first step in our workflow is to compute the number of frames.
 
-The script uses the `file -i` command to display the MIME type and filters out all files that are not videos or images. The images are then extracted and stored in the input_frames directory. Finally, we calculate the number of images and distribute them to the tasks.
+The script uses the `file -i` command to display the `MIME` type and filters out all files that are not videos or images. The images are then extracted and stored in the `input_frames` directory. Finally, we calculate the number of images and distribute them to the tasks.
 
-## Upscale the frames
+### Upscale the frames
 
 In the second step, we upscale the frames. We launch multiple substeps in parallel, using the `for` directive and the variable `$index` to select the batch directory.
 
 After executing the `upscale.sh` script, the frames will be generated inside the output_frames directory.
 
-## Re-assemble the frames
+### Re-assemble the frames
 
 If the input was a video, we reassemble all the frames into a new video stream:
 
-Using ffmpeg, we can determine the FPS of the original video and create a new video with the upscaled frames.
+Using `ffmpeg`, we can determine the FPS of the original video and create a new video with the upscaled frames.
 
 ## Conclusion
 

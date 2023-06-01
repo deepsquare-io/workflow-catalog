@@ -1,0 +1,40 @@
+{
+  "enableLogging": true,
+  "env": [
+    {
+      "key": "DISPLAY",
+      "value": ":99"
+    },
+    {
+      "key": "XDG_RUNTIME_DIR",
+      "value": "/tmp"
+    }
+  ],
+  "resources": {
+    "tasks": 1,
+    "cpusPerTask": 4,
+    "memPerCpu": 4096,
+    "gpusPerTask": 1
+  },
+  "steps": [
+    {
+      "name": "tdp",
+      "run": {
+        "container": {
+          "x11": true,
+          "deepsquareHosted": true,
+          "apptainer": true,
+          "registry": "registry-1.deepsquare.run",
+          "image": "library/tdp:latest"
+        },
+        "resources": {
+          "tasks": 1,
+          "cpusPerTask": 4,
+          "memPerCpu": 4096,
+          "gpusPerTask": 1
+        },
+        "command": "/unityapp/DeepSquareURSSample.x86_64 \\\n  -maxplayers 8 \\\n  -webserverurl 'wss://tdp.deepsquare.run' \\\n  -renderfps 60 \\\n  -streamfps 30 \\\n  -sessionpin 123 \\\n  -minbitrate 10000 \\\n  -maxbitrate 50000 \\\n  -adaptativeupscaling \\\n  -minimumrenderscale 0.5 \\\n  -renderscalestepcount 0.1 \\\n  -displayfpscounter \\\n  --logFile -"
+      }
+    }
+  ]
+}
