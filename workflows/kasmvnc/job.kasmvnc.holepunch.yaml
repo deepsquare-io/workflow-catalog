@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=/tmp/.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## Allow DeepSquare logging
+enableLogging: true
+
+## Allocate resources
+resources:
+  tasks: 2
+  cpusPerTask: 2
+  memPerCpu: 4000
+  gpusPerTask: 0
+
+## The job content
+steps:
+  - name: holepunch-async
+    launch:
+      steps:
+        - name: holepunch
+          run:
+            resources:
+              gpusPerTask: 0
+            container:
+              image: node:20
+            command: |
+              apk add --no-cache git
+              npm install -g hypertele
+              hypertele-server --seed f6d8b5ea589ddc876d34cbe2971d6d9f25bfd5daca7e5d28b645edd5d297085a -l 6901
+
+  ## The steps of the jobs which are run sequentially.
+  - name: kasmvnc
+    run:
+      container:
+        image: kasmweb/desktop:1.14.0-rolling
+        registry: registry-1.docker.io
+        mountHome: true
+      env:
+        - key: VNC_PW
+          value: password
+      command: |
+        mkdir -p $HOME/Desktop
+        cd $HOME
+
+        /dockerstartup/kasm_default_profile.sh
+        cp /dockerstartup/vnc_startup.sh /tmp/vnc_startup.sh
+        sed -Ei 's/ --ssl//g' /tmp/vnc_startup.sh
+        sed -Ei 's| --cert \$\{HOME\}/\.vnc/self\.pem --certkey \$\{HOME\}/\.vnc/self\.pem||g' /tmp/vnc_startup.sh
+        sed -Ei 's/ -sslOnly//g' /tmp/vnc_startup.sh
+        mkdir -p "$HOME/.vnc"
+        cp /usr/share/kasmvnc/kasmvnc_defaults.yaml "$HOME/.vnc/kasmvnc.yaml"
+        sed -Ei 's|require_ssl: true|require_ssl: false|g' "$HOME/.vnc/kasmvnc.yaml"
+        sed -Ei 's|pem_certificate: .*|pem_certificate: \$\{HOME\}/.vnc/self.pem|g' "$HOME/.vnc/kasmvnc.yaml"
+        sed -Ei 's|pem_key: .*|pem_key: \$\{HOME\}/.vnc/self.pem|g' "$HOME/.vnc/kasmvnc.yaml"
+        sed -Ei "s|public_ip: .*|public_ip: auto|g" "$HOME/.vnc/kasmvnc.yaml"
+        #sed -Ei "s|hw3d: .*|hw3d: true|g" "$HOME/.vnc/kasmvnc.yaml"
+        /tmp/vnc_startup.sh --wait
