@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=/tmp/.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## Allow DeepSquare logging
+enableLogging: true
+
+## Allocate resources
+resources:
+  tasks: 1
+  cpusPerTask: 1
+  memPerCpu: 4000
+  gpusPerTask: 0
+
+## The job content
+steps:
+  - name: jupyter
+    run:
+      container:
+        image: jupyter/tensorflow-notebook:tensorflow-2.14.0
+        registry: quay.io
+      command: start-notebook.py --ServerApp.root_dir=$STORAGE_PATH
+      network: slirp4netns
+      customNetworkInterfaces:
+        - bore:
+            address: bore.deepsquare.run
+            port: 2200
+            targetPort: 8888
