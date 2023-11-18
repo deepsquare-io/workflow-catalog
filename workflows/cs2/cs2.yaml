@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=/home/marc/.cache/.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## Allow DeepSquare logging
+enableLogging: true
+
+## Allocate resources
+resources:
+  tasks: 1
+  cpusPerTask: 4
+  memPerCpu: 2000
+  gpusPerTask: 0
+
+## The job content
+steps:
+  ## The steps of the jobs which are run sequentially.
+  ## Comment this step after getting logged in.
+  - name: 'cs2-init'
+    run:
+      container:
+        image: cm2network/steamcmd:latest
+        mountHome: true
+      env:
+        - key: STEAMUSER
+          value: <TO-BE-FILLED>
+        - key: STEAMPASSWORD
+          value: <TO-BE-FILLED>
+      network: slirp4netns
+      customNetworkInterfaces:
+        - bore:
+            address: bore.deepsquare.run
+            port: 2200
+            targetPort: 8080
+      command: |
+        curl -fsSL https://github.com/kost/tty2web/releases/download/v3.0.3/tty2web_linux_amd64 -o $STORAGE_PATH/tty2web
+        chmod +x $STORAGE_PATH/tty2web
+
+        # Uncomment this to store the login session at job-time instead of indefinitely. Safer.
+        # rm -f $HOME/Steam || true
+        # ln -s $STORAGE_PATH $HOME/Steam
+
+        $STORAGE_PATH/tty2web -w --once bash /home/steam/steamcmd/steamcmd.sh +login $STEAMUSER $STEAMPASSWORD +quit
+
+        ls -lah $HOME/Steam
+  - name: 'cs2'
+    run:
+      container:
+        image: cm2network/cs2:latest
+        mountHome: true
+      env:
+        - key: STEAMUSER
+          value: <TO-BE-FILLED>
+        - key: TERM
+          value: xterm
+      command: |
+        curl -fsSL https://github.com/kost/tty2web/releases/download/v3.0.3/tty2web_linux_amd64 -o $STORAGE_PATH/tty2web
+        chmod +x $STORAGE_PATH/tty2web
+
+        apt update -y && apt install -y screen
+
+        # Uncomment this to store the login session at job-time instead of indefinitely. Safer.
+        # rm -f $HOME/Steam
+        # ln -s $STORAGE_PATH $HOME/Steam
+
+        # Cache the game
+        rm -rf /home/steam/cs2-dedicated/
+        ln -s $DEEPSQUARE_SHARED_TMP /home/steam/cs2-dedicated
+
+        # Fix symlinks
+        rm -rf $HOME/.steam
+        ln -s /home/steam/.steam $HOME/.steam
+        rm -rf $HOME/steamcmd
+        ln -s /home/steam/steamcmd $HOME/steamcmd
+
+        screen -dmS cs2 /home/steam/entry.sh
+        $STORAGE_PATH/tty2web -w screen -x cs2
+      network: slirp4netns
+      mapGid: 0
+      mapUid: 0
+      dns:
+        - 1.1.1.1
+      customNetworkInterfaces:
+        - wireguard:
+            privateKey: <TO-BE-FILLED>
+            address:
+              - <TO-BE-FILLED>
+            peers:
+              - publicKey: <TO-BE-FILLED>
+                allowedIPs:
+                  - 0.0.0.0/0
+                persistentKeepalive: 0
+                endpoint: <TO-BE-FILLED>
+        - bore:
+            address: bore.deepsquare.run
+            port: 2200
+            targetPort: 8080
