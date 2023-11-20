@@ -45,4 +45,4 @@ steps:
         - bore:
             address: bore.deepsquare.run
             port: 2200
-            targetPort: 8080
+            targetPort: 6901
