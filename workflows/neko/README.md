@@ -34,9 +34,9 @@ Holepunch is a solution for UDP holepunching. You need to use a local proxy to d
    hyper-cmd-util-keygen --gen_seed
    ```
 
-3. Edit the job and replace the seed.
+3. Edit `job.neko.holepunch.yaml` and replace the seed.
 
-4. Submit the job with the DeepSquare Portal or CLI. An address will be given in the logs.
+4. Submit `job.neko.holepunch.yaml` with the DeepSquare Portal or CLI. An address will be given in the logs.
 
 5. Open the client proxy by using the address:
 
