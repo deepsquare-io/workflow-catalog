@@ -1,4 +1,4 @@
----
+# yaml-language-server: $schema=../../.job.schema.json
 enableLogging: true
 resources:
   tasks: 4

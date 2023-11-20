@@ -4,6 +4,11 @@ DeepSquare integrates the open-source 3D creation suite, Blender, for generating
 
 This guide provides a summary of how we designed and implemented the workflow to run Blender on the DeepSquare Grid.
 
+## Usage
+
+Fill the `s3` fields. Your S3 bucket should contain a `.blend` file.
+Then submit the workflow.
+
 ## Design
 
 We structured the workflow as follows:

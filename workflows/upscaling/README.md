@@ -1,8 +1,14 @@
-# Image Upscaler
+# Image Upscaling
 
 DeepSquare integrates the neural network model optimised image upscaler, `Real-ESRGAN`. This guide illustrates the workflow design and implementation for executing Real-ESRGAN on the DeepSquare Grid.
 
 [Click here](https://docs.deepsquare.run/workflow/samples/upscaling) to know more about the Image Uspcaling workflow in the documentation.
+
+## Usage
+
+Edit the "S3" fields. The S3 bucket must contain a video or images.
+
+Edit the environment variable to customize the behavior of the job.
 
 ## Workflow Design
 

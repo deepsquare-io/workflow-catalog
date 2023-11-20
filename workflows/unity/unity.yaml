@@ -1,4 +1,4 @@
----
+# yaml-language-server: $schema=../../.job.schema.json
 job:
   enableLogging: true
   env:

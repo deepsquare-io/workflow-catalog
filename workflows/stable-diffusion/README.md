@@ -6,6 +6,10 @@ This guide illustrates how we designed and implemented the workflow to execute S
 
 [Click here](https://docs.deepsquare.run/workflow/samples/stable-diffusion) to know more about the Stable-diffusion workflow in the documentation.
 
+## Usage
+
+Replace the variables environment and submit the job. A "transfer.deepsquare.run" will be temporarily available in the logs to extract the output.
+
 ## Design
 
 We designed the workflow as follows:
