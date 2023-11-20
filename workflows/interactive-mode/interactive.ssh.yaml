@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## Allow DeepSquare logging
+enableLogging: true
+
+## Allocate resources
+resources:
+  tasks: 1
+  cpusPerTask: 1
+  memPerCpu: 500
+  gpusPerTask: 0
+
+steps:
+  - name: 'interactive'
+    run:
+      container:
+        image: alpine:latest
+      command: |
+        apk add openssh
+
+        # Pass public key
+        mkdir -p "$HOME/.ssh"
+        echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPd+X08wpIGwKZ0FsJu1nkR3o1CzlXF3OkgQd/WYB2fX" > "$HOME/.ssh/authorized_keys"
+        chmod 600 "$HOME/.ssh/authorized_keys"
+        chmod 700 "$HOME/.ssh"
+
+        # Generate new host keys
+        ssh-keygen -A
+
+        # Print user to we know how to login.
+        id
+
+        # Start server in foreground (use port 2200 since we are not privileged)
+        /usr/sbin/sshd -D -p 2200
+      network: slirp4netns
+      customNetworkInterfaces:
+        - bore:
+            address: bore.deepsquare.run
+            port: 2200
+            targetPort: 2200

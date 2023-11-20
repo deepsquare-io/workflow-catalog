@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## Allow DeepSquare logging
+enableLogging: true
+
+## Allocate resources
+resources:
+  tasks: 1
+  cpusPerTask: 1
+  memPerCpu: 500
+  gpusPerTask: 0
+
+steps:
+  - use:
+      source: github.com/deepsquare-io/workflow-modules/tty2web
+  - name: 'interactive'
+    run:
+      container:
+        image: alpine:latest
+      env:
+        # Set the terminal type. xterm is supported by tty2web
+        - key: TERM
+          value: xterm
+      command: |
+        apk add screen
+        screen -dmS my-session-name sh
+        "$STORAGE_PATH/tty2web" --permit-write --port 8080 --credential admin:password screen -x my-session-name
+      network: slirp4netns
+      customNetworkInterfaces:
+        - bore:
+            address: bore.deepsquare.run
+            port: 2200
+            targetPort: 8080
