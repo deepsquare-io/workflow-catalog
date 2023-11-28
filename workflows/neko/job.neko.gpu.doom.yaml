@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## About dockerfile: https://github.com/deepsquare-io/neko/tree/master/.docker/doom
+## To build the image, run:
+## cd .docker
+## ./build nvidia-base
+## ./build nvidia-doom
+
+## Allow DeepSquare logging
+enableLogging: true
+
+## Allocate resources
+resources:
+  tasks: 1
+  cpusPerTask: 2
+  memPerCpu: 4000
+  gpusPerTask: 1
+
+## The job content
+steps:
+  ## The steps of the jobs which are run sequentially.
+  - name: neko
+    run:
+      container:
+        image: library/neko:nvidia-doom
+        registry: registry-1.deepsquare.run
+      command: |
+        cd $HOME
+
+        /opt/nvidia/nvidia_entrypoint.sh /usr/bin/supervisord -c /etc/neko/supervisord.conf
+      mapUid: 0
+      mapGid: 0
+      network: slirp4netns
+      customNetworkInterfaces:
+        - bore:
+            address: bore.deepsquare.run
+            port: 2200
+            targetPort: 8080
