@@ -4,7 +4,7 @@ resources:
   tasks: 4
   cpusPerTask: 8
   memPerCpu: 8000
-  gpusPerTask: 1
+  gpus: 4
 input:
   s3:
     region: region
@@ -70,6 +70,8 @@ steps:
               apptainer: true
               image: 'linuxserver/blender:3.4.1'
               registry: registry-1.docker.io
+            resources:
+              gpusPerTask: 1
             shell: /bin/bash
             command: |-
               set -e

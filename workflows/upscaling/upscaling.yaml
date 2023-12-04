@@ -4,7 +4,7 @@ resources:
   tasks: 4
   cpusPerTask: 8
   memPerCpu: 8000
-  gpusPerTask: 1
+  gpus: 4
 input:
   s3:
     region: region
@@ -101,6 +101,8 @@ steps:
               apptainer: true
               registry: registry-1.deepsquare.run
               image: library/upscaling:latest
+            resources:
+              gpusPerTask: 1
             shell: /bin/bash
             command: |-
               set -e
@@ -114,11 +116,6 @@ steps:
         apptainer: true
         registry: registry-1.deepsquare.run
         image: library/upscaling:latest
-      resources:
-        tasks: 1
-        cpusPerTask: 8 # TO TEMPLATE
-        memPerCpu: 8000 # TO TEMPLATE
-        gpusPerTask: 0 # TO TEMPLATE
       command: |-
         set -e
 

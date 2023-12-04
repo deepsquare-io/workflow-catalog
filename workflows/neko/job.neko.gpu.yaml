@@ -9,7 +9,7 @@ resources:
   tasks: 1
   cpusPerTask: 2
   memPerCpu: 4000
-  gpusPerTask: 1
+  gpus: 1
 
 ## The job content
 steps:
@@ -19,6 +19,8 @@ steps:
       container:
         image: library/neko:nvidia-xfce
         registry: registry-1.deepsquare.run
+      resources:
+        gpusPerTask: 1
       command: |
         cd $HOME
 

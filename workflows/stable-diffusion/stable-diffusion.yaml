@@ -4,7 +4,7 @@ resources:
   tasks: 4
   cpusPerTask: 8
   memPerCpu: 8000
-  gpusPerTask: 1
+  gpus: 4
 output:
   http:
     url: https://transfer.deepsquare.run/
@@ -39,6 +39,8 @@ steps:
               apptainer: true
               registry: 'registry-1.deepsquare.run'
               image: 'library/stable-diffusion:latest'
+            resources:
+              gpusPerTask: 1
             mounts:
               - hostDir: '/data/beegfs/cache/persistent'
                 containerDir: '/cache'

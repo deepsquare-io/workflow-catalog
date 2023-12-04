@@ -16,7 +16,7 @@ The workflow format consists of defining the resources allocated for your applic
 ```yaml
 resources:
   tasks: 16
-  gpusPerTask: 0
+  gpus: 0
   cpusPerTask: 1
   memPerCpu: 1024
 enableLogging: true

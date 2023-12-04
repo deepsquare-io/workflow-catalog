@@ -8,7 +8,7 @@ resources:
   tasks: 1
   cpusPerTask: 4
   memPerCpu: 2000
-  gpusPerTask: 0
+  gpus: 0
 
 ## The job content
 steps:
@@ -118,14 +118,14 @@ steps:
         mp_buytime											20
         mp_buy_anywhere										0
         mp_buy_during_immunity								0
-        mp_death_drop_defuser								1	
+        mp_death_drop_defuser								1
         mp_death_drop_grenade								2			// 0=none, 1=best, 2=current or best
         mp_death_drop_gun									1			// 0=none, 1=best, 2=current or best
         mp_fists_replace_melee								1
         mp_defuser_allocation								0
         mp_force_pick_time									15
         mp_forcecamera										1			// Set to 1 for team only spectating.
-        mp_free_armor										0		
+        mp_free_armor										0
         mp_freezetime										15
         mp_friendlyfire										1
         mp_win_panel_display_time							3
@@ -152,7 +152,7 @@ steps:
         spec_freeze_time									2.0
         sv_allow_votes										1		// Voting allowed in this mode
         sv_talk_enemy_living								0
-        sv_talk_enemy_dead									0		
+        sv_talk_enemy_dead									0
         sv_auto_full_alltalk_during_warmup_half_end			0
         sv_deadtalk											1
         sv_ignoregrenaderadio								0

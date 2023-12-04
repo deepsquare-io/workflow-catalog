@@ -1,41 +1,37 @@
 # yaml-language-server: $schema=../../.job.schema.json
-job:
-  enableLogging: true
-  env:
-    - key: DISPLAY
-      value: ':99'
-    - key: XDG_RUNTIME_DIR
-      value: '/tmp'
-  resources:
-    tasks: 1
-    cpusPerTask: 4
-    memPerCpu: 4096
-    gpusPerTask: 1
-  steps:
-    - name: tdp
-      run:
-        container:
-          x11: true
-          deepsquareHosted: true
-          apptainer: true
-          registry: registry-1.deepsquare.run
-          image: 'library/tdp:latest'
-        resources:
-          tasks: 1
-          cpusPerTask: 4
-          memPerCpu: 4096
-          gpusPerTask: 1
-        command: |-
-          /unityapp/DeepSquareURSSample.x86_64 \
-            -maxplayers 8 \
-            -webserverurl 'wss://tdp.deepsquare.run' \
-            -renderfps 60 \
-            -streamfps 30 \
-            -sessionpin 123 \
-            -minbitrate 10000 \
-            -maxbitrate 50000 \
-            -adaptativeupscaling \
-            -minimumrenderscale 0.5 \
-            -renderscalestepcount 0.1 \
-            -displayfpscounter \
-            --logFile -
+enableLogging: true
+env:
+  - key: DISPLAY
+    value: ':99'
+  - key: XDG_RUNTIME_DIR
+    value: '/tmp'
+resources:
+  tasks: 1
+  cpusPerTask: 4
+  memPerCpu: 4096
+  gpus: 1
+steps:
+  - name: tdp
+    run:
+      container:
+        x11: true
+        deepsquareHosted: true
+        apptainer: true
+        registry: registry-1.deepsquare.run
+        image: 'library/tdp:latest'
+      resources:
+        gpusPerTask: 1
+      command: |-
+        /unityapp/DeepSquareURSSample.x86_64 \
+          -maxplayers 8 \
+          -webserverurl 'wss://tdp.deepsquare.run' \
+          -renderfps 60 \
+          -streamfps 30 \
+          -sessionpin 123 \
+          -minbitrate 10000 \
+          -maxbitrate 50000 \
+          -adaptativeupscaling \
+          -minimumrenderscale 0.5 \
+          -renderscalestepcount 0.1 \
+          -displayfpscounter \
+          --logFile -
