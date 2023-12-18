@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=/home/marc/.cache/.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## Allow DeepSquare logging
+enableLogging: true
+
+## Allocate resources
+resources:
+  tasks: 1
+  cpusPerTask: 4
+  memPerCpu: 8000
+  gpus: 1
+
+## The job content
+steps:
+  ## The steps of the jobs which are run sequentially.
+  - name: 'katago'
+    run:
+      container:
+        image: darkness4/katago:latest-neko
+      network: slirp4netns
+      resources:
+        gpusPerTask: 1
+      customNetworkInterfaces:
+        - bore:
+            boreAddress: bore.deepsquare.run:2200
+            targetPort: 8080
+      mapGid: 0
+      mapUid: 0
+      command: |
+        mkdir -p $HOME/.config/Sabaki
+        cp /home/neko/.config/Sabaki/settings.json $HOME/.config/Sabaki/settings.json
+        /usr/bin/supervisord -c /etc/neko/supervisord.conf

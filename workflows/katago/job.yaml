@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=/home/marc/.cache/.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## Allow DeepSquare logging
+enableLogging: true
+
+## Allocate resources
+resources:
+  tasks: 1
+  cpusPerTask: 4
+  memPerCpu: 8000
+  gpus: 1
+
+## The job content
+steps:
+  ## The steps of the jobs which are run sequentially.
+  - name: 'katago'
+    run:
+      container:
+        image: darkness4/katago:latest-ssh
+      network: slirp4netns
+      resources:
+        gpusPerTask: 1
+      customNetworkInterfaces:
+        - bore:
+            boreAddress: bore.deepsquare.run:2200
+            targetPort: 2200
+            secret: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDI4MTIyMjYsInVzZXJfaWQiOiIweDc1NzYxYjE3YzMwODhjZTVjZDhlMDI1NzVjNmRhYTQzOGZmYTZlMTIiLCJ1c2VyX25hbWUiOiIweDc1NzYxYjE3YzMwODhjZTVjZDhlMDI1NzVjNmRhYTQzOGZmYTZlMTIiLCJub25jZSI6InNBTXc2WjNGc3dpdnhTbWZWQ3NKUUE9PSJ9.m_aRxFu5Gxb8Vcjf87x90jTO4y5QUJ2LZ6L2LEIQJI8
+      command: |
+        mkdir -p "$HOME/.ssh"
+        echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPd+X08wpIGwKZ0FsJu1nkR3o1CzlXF3OkgQd/WYB2fX nguyen@csquare" >> "$HOME/.ssh/authorized_keys"
+        chmod 600 "$HOME/.ssh/authorized_keys"
+        chmod 700 "$HOME/.ssh"
+
+        ssh-keygen -A
+
+        echo $USER
+
+        /usr/sbin/sshd -D -p 2200
+
+#### Use a script to interact with it
+
+# #!/bin/sh
+# # katago-remote.sh
+#
+# set -e
+#
+# SCRIPTPATH="$(dirname "$(realpath "$0")")"
+#
+# # Copy config file to remote server
+# scp -i ~/.ssh/id_ed25519_csquare -P <port> "$SCRIPTPATH/default_gtp.cfg" <user>@bore.deepsquare.run:/tmp/default_gtp.cfg
+#
+# ssh -i ~/.ssh/id_ed25519_csquare -p <port> <user>@bore.deepsquare.run "set -e
+#
+# # Change this if you want to use an another model, see https://katagotraining.org
+# RELEASE=kata1-b18c384nbt-s8493331456-d3920571699
+#
+# if [ ! -f \$DEEPSQUARE_DISK_TMP/default_model.bin.gz ]; then
+#   curl -fsSL https://media.katagotraining.org/uploaded/networks/models/kata1/\$RELEASE.bin.gz -o \$DEEPSQUARE_DISK_TMP/default_model.bin.gz
+# fi
+#
+# /app/katago $@ -model \$DEEPSQUARE_DISK_TMP/default_model.bin.gz -config /tmp/default_gtp.cfg"
