@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=/home/marc/.cache/.job.schema.json
+## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
+
+## Allow DeepSquare logging
+enableLogging: false
+
+## Allocate resources
+resources:
+  tasks: 2
+  cpusPerTask: 1
+  memPerCpu: 2000
+  gpus: 0
+
+virtualNetworks:
+  - name: network
+    gatewayAddress: 10.0.0.1/24
+
+## The job content
+steps:
+  # Launch mariadb async
+  - name: mariadb
+    launch:
+      steps:
+        - run:
+            container:
+              image: mariadb:latest
+            network: slirp4netns
+            mapGid: 0
+            mapUid: 0
+            customNetworkInterfaces:
+              - vnet:
+                  name: network
+                  address: 10.0.0.2/24
+            command: |
+              set -e
+
+              # BUG: Cannot set via `env`, the container is erasing the variables.
+              # Bug reported to DeepSquare.
+              export MARIADB_ROOT_PASSWORD=rootpassword
+              export MARIADB_DATABASE=vaultwarden
+              export MARIADB_USER=vaultwarden
+              export MARIADB_PASSWORD=vaultwardenpassword
+
+              cd $STORAGE_PATH
+
+              rm -rf /run/mysqld
+              mkdir -p /run/mysqld
+              chown mysql:mysql /run/mysqld
+
+              # Data location: /var/lib/mysql
+              # Use STORAGE_PATH a persistent location (job duration)
+              mkdir -p $STORAGE_PATH/mysql
+              # Do a mount --bind. This is allowed because of slirp4netns.
+              mount --bind $STORAGE_PATH/mysql /var/lib/mysql
+
+              # Patch "ignore running as root"
+              sed -Ei 's/"\$\(id -u\)" = "0"/0 -eq 1/g' /usr/local/bin/docker-entrypoint.sh
+
+              docker-entrypoint.sh mariadbd --user=root
+
+  - name: mariadb-healthcheck
+    run:
+      container:
+        image: mariadb:latest
+      network: slirp4netns
+      mapGid: 0
+      mapUid: 0
+      customNetworkInterfaces:
+        - vnet:
+            name: network
+            address: 10.0.0.3/24
+      command: |
+        while ! mariadb-admin ping --host 10.0.0.2 --user=vaultwarden --password=vaultwardenpassword --silent ; do
+            echo "Waiting for database connection..."
+            sleep 2
+        done
+
+  - name: 'vaultwarden'
+    run:
+      container:
+        image: vaultwarden/server:latest
+      env:
+        - key: RUST_BACKTRACE
+          value: '1'
+        - key: DISABLE_ICON_DOWNLOAD
+          value: 'true'
+        - key: ROCKET_PORT
+          value: '8080'
+        - key: DATABASE_URL
+          value: 'mysql://vaultwarden:vaultwardenpassword@10.0.0.2/vaultwarden'
+        - key: ADMIN_TOKEN
+          value: password
+        - key: DATA_FOLDER
+          value: /data
+      network: slirp4netns
+      mapGid: 0
+      mapUid: 0
+      customNetworkInterfaces:
+        - vnet: # Re-use peer
+            name: network
+            address: 10.0.0.3/24
+        - bore:
+            targetPort: 8080
+            boreAddress: bore.deepsquare.run:2200
+      workDir: /
+      command: |
+        set -e
+
+        # Data location: /data
+        # Persist data in $STORAGE_PATH
+        mkdir -p $STORAGE_PATH/vaultwarden
+        mount --bind $STORAGE_PATH/vaultwarden /data
+
+        /start.sh
