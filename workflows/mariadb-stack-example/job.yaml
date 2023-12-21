@@ -2,7 +2,7 @@
 ## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
 
 ## Allow DeepSquare logging
-enableLogging: false
+enableLogging: true
 
 ## Allocate resources
 resources:
