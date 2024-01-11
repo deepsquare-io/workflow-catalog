@@ -31,15 +31,17 @@ steps:
               - vnet:
                   name: network
                   address: 10.0.0.2/24
+            env:
+              - key: MARIADB_ROOT_PASSWORD
+                value: rootpassword
+              - key: MARIADB_DATABASE
+                value: vaultwarden
+              - key: MARIADB_USER
+                value: vaultwarden
+              - key: MARIADB_PASSWORD
+                value: vaultwardenpassword
             command: |
               set -e
-
-              # BUG: Cannot set via `env`, the container is erasing the variables.
-              # Bug reported to DeepSquare.
-              export MARIADB_ROOT_PASSWORD=rootpassword
-              export MARIADB_DATABASE=vaultwarden
-              export MARIADB_USER=vaultwarden
-              export MARIADB_PASSWORD=vaultwardenpassword
 
               cd $STORAGE_PATH
 
