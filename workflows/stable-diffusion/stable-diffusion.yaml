@@ -39,21 +39,17 @@ steps:
               apptainer: true
               registry: 'registry-1.deepsquare.run'
               image: 'library/stable-diffusion:latest'
+              mounts:
+                - hostDir: '/opt/models/stable-diffusion'
+                  containerDir: '/models'
+                  options: 'ro'
             resources:
               gpusPerTask: 1
-            mounts:
-              - hostDir: '/data/beegfs/cache/persistent'
-                containerDir: '/cache'
-                options: 'rw'
-              - hostDir: '/opt/models/stable-diffusion'
-                containerDir: '/models'
-                options: 'ro'
-            env:
-              - key: HF_HOME
-                value: /cache
             shell: '/bin/bash'
             command: |
               set -e
+
+              export HF_HOME="$DEEPSQUARE_SHARED_TMP"
 
               mkdir -p "${STORAGE_PATH}/batch-${index}"
               params=(
