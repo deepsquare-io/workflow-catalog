@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../.job.schema.json
+# yaml-language-server: $schema=../.job.schema.json
 ## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
 
 ## About dockerfile: https://github.com/deepsquare-io/neko/tree/master/.docker/doom

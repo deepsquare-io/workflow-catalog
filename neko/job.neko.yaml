@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../.job.schema.json
+# yaml-language-server: $schema=../.job.schema.json
 ## See: https://docs.deepsquare.run/workflow/workflow-api-reference/job
 
 ## Allow DeepSquare logging
@@ -9,7 +9,7 @@ resources:
   tasks: 1
   cpusPerTask: 2
   memPerCpu: 4000
-  gpus: 1
+  gpus: 0
 
 ## The job content
 steps:
@@ -17,14 +17,13 @@ steps:
   - name: neko
     run:
       container:
-        image: library/neko:nvidia-xfce
-        registry: registry-1.deepsquare.run
-      resources:
-        gpusPerTask: 1
+        image: m1k1o/neko:firefox
+        registry: registry-1.docker.io
+        mountHome: true
       command: |
         cd $HOME
 
-        /opt/nvidia/nvidia_entrypoint.sh /usr/bin/supervisord -c /etc/neko/supervisord.conf
+        /usr/bin/supervisord -c /etc/neko/supervisord.conf
       mapUid: 0
       mapGid: 0
       network: slirp4netns
