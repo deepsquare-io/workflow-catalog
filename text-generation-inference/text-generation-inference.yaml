@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../.job.schema.json
 
-enableLogging: false
+enableLogging: true
 resources:
   tasks: 3
   cpusPerTask: 2
