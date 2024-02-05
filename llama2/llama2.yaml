@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=../.job.schema.json
+
+enableLogging: true
+resources:
+  tasks: 1
+  cpusPerTask: 6
+  memPerCpu: 10000
+  gpus: 1
+
+continuousOutputSync: true
+
+steps:
+  - name: 'interactive'
+    run:
+      container:
+        deepsquareHosted: true
+        apptainer: true
+        registry: registry-1.deepsquare.run
+        image: internal/chatbot-runtime:latest
+        mounts:
+          - hostDir: '/data/beegfs/models'
+            containerDir: '/opt/models'
+            options: ro
+      resources:
+        gpusPerTask: 1
+      env:
+        # Set the terminal type. xterm is supported by tty2web
+        - key: TERM
+          value: xterm
+      command: |
+        set -ex
+        export HF_HOME=$DEEPSQUARE_SHARED_TMP
+        cd /opt/models/llama2
+        curl -fsSL -o "$STORAGE_PATH/tty2web" https://github.com/kost/tty2web/releases/download/v3.0.3/tty2web_linux_amd64
+        chmod +x "$STORAGE_PATH/tty2web"
+        . /venv/.miniconda3/bin/activate
+        mkdir -p $DEEPSQUARE_TMP/python
+        export PYTHONUSERBASE=$DEEPSQUARE_TMP/python
+        pip install --user fairscale fire
+        "$STORAGE_PATH/tty2web" --permit-write --port 8080 torchrun \
+          --nproc_per_node 1 \
+          /opt/models/llama2/example_chat_interactive.py \
+          --ckpt_dir /opt/models/llama-2-7b-chat/ \
+          --tokenizer_path tokenizer.model \
+          --max_seq_len 4096 \
+          --max_batch_size 2
+      network: slirp4netns
+      customNetworkInterfaces:
+        - bore:
+            address: bore.deepsquare.run
+            port: 2200
+            targetPort: 8080
