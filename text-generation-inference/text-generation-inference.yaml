@@ -60,14 +60,14 @@ steps:
 
               # Mount the db
               mkdir -p /data/db
-              mkdir -p $DEEPSQUARE_TMP/mongo
-              mount --bind $DEEPSQUARE_TMP/mongo /data/db
+              mkdir -p $STORAGE_PATH/mongo
+              mount --bind $STORAGE_PATH/mongo /data/db
 
               # Launch the db
-              numactl --interleave=all mongod --bind_ip_all > $DEEPSQUARE_TMP/mongod.log &
+              numactl --interleave=all mongod --bind_ip_all > $STORAGE_PATH/mongod.log &
               pid=$!
               sleep 5
-              mongosh --eval 'db.createUser({ user: "root", pwd: "example", roles: [ { role: "readWrite", db: "test" } ] })' || true
+              mongosh --eval 'db.createUser({ user: "chat", pwd: "example", roles: [ { role: "readWrite", db: "test" } ] })' || true
               wait $pid
               echo "Exited $?"
             network: slirp4netns
@@ -88,7 +88,7 @@ steps:
       mapUid: 0
       env:
         - key: MONGODB_USERNAME
-          value: root
+          value: chat
         - key: MONGODB_PASSWORD
           value: example
       customNetworkInterfaces:
@@ -105,23 +105,125 @@ steps:
     steps:
       - run:
           container:
-            registry: registry-1.deepsquare.run
-            # To update the image, just pull ghcr.io/huggingface/chat-ui:latest
-            # and push it to registry-1.deepsquare.run/library/chat-ui:latest
-            image: library/chat-ui:latest
+            registry: ghcr.io
+            # To update the image, go to https://github.com/deepsquare-io/chat-ui
+            # Update the fork, merge the main branch to the feat/dynamic branch.
+            # Then build the dockerfile on the feat/dynamic branch.
+            # And push it to ghcr.io/deepsquare-io/chat-ui:latest
+            image: deepsquare-io/chat-ui:latest
+          env:
+            - key: MONGODB_URL
+              value: mongodb://chat:example@10.0.0.3:27017/test
+            - key: MONGODB_DB_NAME
+              value: 'test'
+            - key: MONGODB_DIRECT_CONNECTION
+              value: 'false'
+
+            - key: COOKIE_NAME
+              value: 'hf-chat'
+            - key: HF_TOKEN
+              value: ''
+            - key: HF_API_ROOT
+              value: https://api-inference.huggingface.co/models
+            - key: OPENAI_API_KEY
+              value: ''
+
+            - key: HF_ACCESS_TOKEN # LEGACY! Use HF_TOKEN instead.
+              value: ''
+
+            - key: YDC_API_KEY
+              value: ''
+            - key: SERPER_API_KEY
+              value: ''
+            - key: SERPAPI_KEY
+              value: ''
+            - key: SERPSTACK_API_KEY
+              value: ''
+            - key: USE_LOCAL_WEBSEARCH
+              value: ''
+
+            - key: WEBSEARCH_ALLOWLIST
+              value: '[]'
+            - key: WEBSEARCH_BLOCKLIST
+              value: '[]'
+
+            - key: USE_CLIENT_CERTIFICATE
+              value: 'false'
+            - key: CERT_PATH
+              value: ''
+            - key: KEY_PATH
+              value: ''
+            - key: CA_PATH
+              value: ''
+            - key: CLIENT_KEY_PASSWORD
+              value: ''
+            - key: REJECT_UNAUTHORIZED
+              value: 'true'
+
+            - key: TASK_MODEL
+              value: ''
+
+            - key: PUBLIC_ORIGIN
+              value: ''
+            - key: PUBLIC_SHARE_PREFIX
+              value: ''
+            - key: PUBLIC_GOOGLE_ANALYTICS_ID
+              value: ''
+            - key: PUBLIC_PLAUSIBLE_SCRIPT_URL
+              value: ''
+
+            - key: PARQUET_EXPORT_DATASET
+              value: ''
+            - key: PARQUET_EXPORT_HF_TOKEN
+              value: ''
+            - key: PARQUET_EXPORT_SECRET
+              value: ''
+
+            - key: RATE_LIMIT
+              value: ''
+            - key: MESSAGES_BEFORE_LOGIN
+              value: ''
+
+            - key: APP_BASE
+              value: ''
+
+            - key: PUBLIC_APP_NAME
+              value: ChatUI
+            - key: PUBLIC_APP_ASSETS
+              value: chatui
+            - key: PUBLIC_APP_COLOR
+              value: blue
+            - key: PUBLIC_APP_DESCRIPTION
+              value: ''
+            - key: PUBLIC_APP_DATA_SHARING
+              value: ''
+            - key: PUBLIC_APP_DISCLAIMER
+              value: ''
+            - key: PUBLIC_APP_DISCLAIMER_MESSAGE
+              value: 'Disclaimer: AI is an area of active research with known problems such as biased generation and misinformation. Do not use this application for high-stakes decisions or advice.'
+            - key: LLM_SUMMERIZATION
+              value: 'true'
+
+            - key: EXPOSE_API
+              value: 'true'
+
+            - key: ENABLE_ASSISTANTS
+              value: 'false'
+
+            - key: ALTERNATIVE_REDIRECT_URLS
+              value: '[]'
           command: |
             set -e
 
-            cat << 'EOF' > .env.local
-            MONGODB_URL=mongodb://root:example@10.0.0.3:27017/test
-            MODELS=`[
+            export MODELS=$(cat <<'EOF'
+            [
               {
                 "name": "mistralai/Mistral-7B-Instruct-v0.2",
                 "displayName": "mistralai/Mistral-7B-Instruct-v0.2",
                 "description": "Mistral 7B is a new Apache 2.0 model, released by Mistral AI that outperforms Llama2 13B in benchmarks.",
                 "websiteUrl": "https://mistral.ai/news/announcing-mistral-7b/",
                 "preprompt": "",
-                "chatPromptTemplate" : "<s>{{#each messages}}{{#ifUser}}[INST] {{#if @first}}{{#if @root.preprompt}}{{@root.preprompt}}\n{{/if}}{{/if}}{{content}} [/INST]{{/ifUser}}{{#ifAssistant}}{{content}}</s>{{/ifAssistant}}{{/each}}",
+                "chatPromptTemplate" : "<s>{{#each messages}}{{#ifUser}}[INST] {{#if @first}}{{#if @root.preprompt}}{{@root.preprompt}}\\n{{/if}}{{/if}}{{content}} [/INST]{{/ifUser}}{{#ifAssistant}}{{content}}</s>{{/ifAssistant}}{{/each}}",
                 "parameters": {
                   "temperature": 0.3,
                   "top_p": 0.95,
@@ -134,7 +236,7 @@ steps:
                 "promptExamples": [
                   {
                     "title": "Write an email from bullet list",
-                    "prompt": "As a restaurant owner, write a professional email to the supplier to get these products every week: \n\n- Wine (x10)\n- Eggs (x24)\n- Bread (x12)"
+                    "prompt": "As a restaurant owner, write a professional email to the supplier to get these products every week: \\n\\n- Wine (x10)\\n- Eggs (x24)\\n- Bread (x12)"
                   }, {
                     "title": "Code a snake game",
                     "prompt": "Code a basic snake game in python, give explanations for each step."
@@ -148,13 +250,46 @@ steps:
                   "url": "http://10.0.0.2:8080"
                 }]
               }
-            ]`
+            ]
             EOF
+            )
 
-            docker-entrypoint.sh /bin/bash -c /app/entrypoint.sh
-            # Or run:
-            # npm run build
-            # npm run preview -- --host 0.0.0.0 --port 3000
+            export OPENID_CONFIG=$(cat <<'EOF'
+            {
+              PROVIDER_URL: "",
+              CLIENT_ID: "",
+              CLIENT_SECRET: "",
+              SCOPES: "openid profile",
+              TOLERANCE: "",
+              RESOURCE: ""
+            }
+            EOF
+            )
+
+            export TEXT_EMBEDDING_MODELS='[
+              {
+                "name": "Xenova/gte-small",
+                "displayName": "Xenova/gte-small",
+                "description": "Local embedding model running on the server.",
+                "chunkCharLength": 512,
+                "endpoints": [
+                  { "type": "transformersjs" }
+                ]
+              }
+            ]'
+            export OLD_MODELS='[]'
+            export PUBLIC_ANNOUNCEMENT_BANNERS=$(cat <<'EOF'
+            [
+              {
+                "title": "Code Llama 70B is available! 🦙",
+                "linkTitle": "try it",
+                "linkHref": "https://huggingface.co/chat?model=codellama/CodeLlama-70b-Instruct-hf"
+              }
+            ]
+            EOF
+            )
+
+            docker-entrypoint.sh /bin/sh -c 'pm2 start /app/build/index.js -i $(nproc) --no-daemon'
             echo "Exited $?"
           network: slirp4netns
           mapGid: 0
