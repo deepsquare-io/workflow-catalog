@@ -201,6 +201,8 @@ steps:
               value: ''
             - key: PUBLIC_APP_DISCLAIMER_MESSAGE
               value: 'Disclaimer: AI is an area of active research with known problems such as biased generation and misinformation. Do not use this application for high-stakes decisions or advice.'
+            - key: PUBLIC_VERSION
+              value: '1.4.0'
             - key: LLM_SUMMERIZATION
               value: 'true'
 
