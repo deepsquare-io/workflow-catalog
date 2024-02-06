@@ -268,7 +268,8 @@ steps:
             EOF
             )
 
-            export TEXT_EMBEDDING_MODELS='[
+            export TEXT_EMBEDDING_MODELS=$(cat <<'EOF'
+            [
               {
                 "name": "Xenova/gte-small",
                 "displayName": "Xenova/gte-small",
@@ -278,7 +279,9 @@ steps:
                   { "type": "transformersjs" }
                 ]
               }
-            ]'
+            ]
+            EOF
+            )
             export OLD_MODELS='[]'
             export PUBLIC_ANNOUNCEMENT_BANNERS=$(cat <<'EOF'
             [
