@@ -112,6 +112,9 @@ steps:
             # And push it to ghcr.io/deepsquare-io/chat-ui:latest
             image: deepsquare-io/chat-ui:latest
           env:
+            - key: HF_HOME
+              value: /deepsquare
+
             - key: MONGODB_URL
               value: mongodb://chat:example@10.0.0.3:27017/test
             - key: MONGODB_DB_NAME
@@ -187,8 +190,10 @@ steps:
             - key: APP_BASE
               value: ''
 
+            - key: PUBLIC_VERSION
+              value: '1.4.0'
             - key: PUBLIC_APP_NAME
-              value: ChatUI
+              value: DeepSquare Chat
             - key: PUBLIC_APP_ASSETS
               value: chatui
             - key: PUBLIC_APP_COLOR
@@ -198,11 +203,9 @@ steps:
             - key: PUBLIC_APP_DATA_SHARING
               value: ''
             - key: PUBLIC_APP_DISCLAIMER
-              value: ''
+              value: '0'
             - key: PUBLIC_APP_DISCLAIMER_MESSAGE
-              value: 'Disclaimer: AI is an area of active research with known problems such as biased generation and misinformation. Do not use this application for high-stakes decisions or advice.'
-            - key: PUBLIC_VERSION
-              value: '1.4.0'
+              value: ''
             - key: LLM_SUMMERIZATION
               value: 'true'
 
@@ -214,85 +217,72 @@ steps:
 
             - key: ALTERNATIVE_REDIRECT_URLS
               value: '[]'
+            - key: MODELS
+              value: |-
+                [
+                  {
+                    "name": "mistralai/Mistral-7B-Instruct-v0.2",
+                    "displayName": "mistralai/Mistral-7B-Instruct-v0.2",
+                    "description": "Mistral 7B is a new Apache 2.0 model, released by Mistral AI that outperforms Llama2 13B in benchmarks.",
+                    "websiteUrl": "https://mistral.ai/news/announcing-mistral-7b/",
+                    "preprompt": "",
+                    "chatPromptTemplate" : "<s>{{#each messages}}{{#ifUser}}[INST] {{#if @first}}{{#if @root.preprompt}}{{@root.preprompt}}\\n{{/if}}{{/if}}{{content}} [/INST]{{/ifUser}}{{#ifAssistant}}{{content}}</s>{{/ifAssistant}}{{/each}}",
+                    "parameters": {
+                      "temperature": 0.3,
+                      "top_p": 0.95,
+                      "repetition_penalty": 1.2,
+                      "top_k": 50,
+                      "truncate": 1024,
+                      "max_new_tokens": 1024,
+                      "stop": ["</s>"]
+                    },
+                    "promptExamples": [
+                      {
+                        "title": "Write an email from bullet list",
+                        "prompt": "As a restaurant owner, write a professional email to the supplier to get these products every week: \\n\\n- Wine (x10)\\n- Eggs (x24)\\n- Bread (x12)"
+                      }, {
+                        "title": "Code a snake game",
+                        "prompt": "Code a basic snake game in python, give explanations for each step."
+                      }, {
+                        "title": "Assist in a task",
+                        "prompt": "How do I make a delicious lemon cheesecake?"
+                      }
+                    ],
+                    "endpoints": [{
+                      "type" : "tgi",
+                      "url": "http://10.0.0.2:8080"
+                    }]
+                  }
+                ]
+            - key: TEXT_EMBEDDING_MODELS
+              value: |-
+                [
+                  {
+                    "name": "Xenova/gte-small",
+                    "displayName": "Xenova/gte-small",
+                    "description": "Local embedding model running on the server.",
+                    "chunkCharLength": 512,
+                    "endpoints": [
+                      { "type": "transformersjs" }
+                    ]
+                  }
+                ]
+            - key: OPENID_CONFIG
+              value: |-
+                {
+                  PROVIDER_URL: "",
+                  CLIENT_ID: "",
+                  CLIENT_SECRET: "",
+                  SCOPES: "openid profile",
+                  TOLERANCE: "",
+                  RESOURCE: ""
+                }
+            - key: OLD_MODELS
+              value: '[]'
+            - key: PUBLIC_ANNOUNCEMENT_BANNERS
+              value: '[]'
           command: |
             set -e
-
-            export MODELS=$(cat <<'EOF'
-            [
-              {
-                "name": "mistralai/Mistral-7B-Instruct-v0.2",
-                "displayName": "mistralai/Mistral-7B-Instruct-v0.2",
-                "description": "Mistral 7B is a new Apache 2.0 model, released by Mistral AI that outperforms Llama2 13B in benchmarks.",
-                "websiteUrl": "https://mistral.ai/news/announcing-mistral-7b/",
-                "preprompt": "",
-                "chatPromptTemplate" : "<s>{{#each messages}}{{#ifUser}}[INST] {{#if @first}}{{#if @root.preprompt}}{{@root.preprompt}}\\n{{/if}}{{/if}}{{content}} [/INST]{{/ifUser}}{{#ifAssistant}}{{content}}</s>{{/ifAssistant}}{{/each}}",
-                "parameters": {
-                  "temperature": 0.3,
-                  "top_p": 0.95,
-                  "repetition_penalty": 1.2,
-                  "top_k": 50,
-                  "truncate": 1024,
-                  "max_new_tokens": 1024,
-                  "stop": ["</s>"]
-                },
-                "promptExamples": [
-                  {
-                    "title": "Write an email from bullet list",
-                    "prompt": "As a restaurant owner, write a professional email to the supplier to get these products every week: \\n\\n- Wine (x10)\\n- Eggs (x24)\\n- Bread (x12)"
-                  }, {
-                    "title": "Code a snake game",
-                    "prompt": "Code a basic snake game in python, give explanations for each step."
-                  }, {
-                    "title": "Assist in a task",
-                    "prompt": "How do I make a delicious lemon cheesecake?"
-                  }
-                ],
-                "endpoints": [{
-                  "type" : "tgi",
-                  "url": "http://10.0.0.2:8080"
-                }]
-              }
-            ]
-            EOF
-            )
-
-            export OPENID_CONFIG=$(cat <<'EOF'
-            {
-              PROVIDER_URL: "",
-              CLIENT_ID: "",
-              CLIENT_SECRET: "",
-              SCOPES: "openid profile",
-              TOLERANCE: "",
-              RESOURCE: ""
-            }
-            EOF
-            )
-
-            export TEXT_EMBEDDING_MODELS=$(cat <<'EOF'
-            [
-              {
-                "name": "Xenova/gte-small",
-                "displayName": "Xenova/gte-small",
-                "description": "Local embedding model running on the server.",
-                "chunkCharLength": 512,
-                "endpoints": [
-                  { "type": "transformersjs" }
-                ]
-              }
-            ]
-            EOF
-            )
-            export OLD_MODELS='[]'
-            export PUBLIC_ANNOUNCEMENT_BANNERS=$(cat <<'EOF'
-            [
-              {
-                "title": "Code Llama 70B is available! 🦙",
-                "linkTitle": "try it",
-                "linkHref": "https://huggingface.co/chat?model=codellama/CodeLlama-70b-Instruct-hf"
-              }
-            ]
-            EOF
-            )
 
             docker-entrypoint.sh /bin/sh -c 'pm2 start /app/build/index.js -i $(nproc) --no-daemon'
             echo "Exited $?"
