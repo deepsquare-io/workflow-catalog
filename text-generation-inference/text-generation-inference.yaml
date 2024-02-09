@@ -213,7 +213,7 @@ steps:
               value: 'true'
 
             - key: ENABLE_ASSISTANTS
-              value: 'false'
+              value: 'true'
 
             - key: ALTERNATIVE_REDIRECT_URLS
               value: '[]'
