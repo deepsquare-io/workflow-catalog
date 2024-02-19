@@ -1,26 +1,128 @@
-# yaml-language-server: $schema=../.job.schema.json
+# yaml-language-server: $schema=/home/marc/.cache/.job.schema.json
 enableLogging: true
+
 resources:
   tasks: 1
   cpusPerTask: 2
   memPerCpu: 10000
   gpus: 1
-continuousOutputSync: true
+
 steps:
   - name: automatic111
     run:
+      env:
+        - key: CLI_ARGS
+          value: --allow-code --xformers --enable-insecure-extension-access --api
+        - key: CLEAN_EXTENSIONS
+          value: 'false'
       resources:
         gpusPerTask: 1
       container:
         registry: registry-1.deepsquare.run
-        image: library/automatic111:gpu
+        image: library/automatic111:abdbarho
       network: slirp4netns
       customNetworkInterfaces:
         - bore:
             boreAddress: bore.deepsquare.run:2200
             targetPort: 7860
+      mapGid: 0
+      mapUid: 0
       command: |
         set -e
-        cd /home/app/project/stable-diffusion-webui
-        sed -i 's/can_run_as_root=0/can_run_as_root=1/' ./webui.sh
-        ./webui.sh --listen --port 7860
+
+        apt update -y && apt install curl ffmpeg -y
+
+        # Prepare cache
+        mkdir -p "$DEEPSQUARE_SHARED_TMP/stable-diffusion-models" "$DEEPSQUARE_SHARED_TMP/stable-diffusion-extensions"
+        mkdir -p "$DEEPSQUARE_SHARED_TMP/cache" "$HOME/.cache/" "$STORAGE_PATH/output" "$STORAGE_PATH/sd-data" /output /data
+
+        # Mount user cache
+        mount --bind "$DEEPSQUARE_SHARED_TMP/cache" "$HOME/.cache/"
+        # Mount the weights
+        mount --bind "$STORAGE_PATH/sd-data" /data
+        mkdir -p /data/models /data/config/auto/extensions
+        mount --bind "$DEEPSQUARE_SHARED_TMP/stable-diffusion-models" /data/models
+        mount --bind "$DEEPSQUARE_SHARED_TMP/stable-diffusion-extensions" /data/config/auto/extensions
+        # Mount the output
+        mount --bind "$STORAGE_PATH/output" "/output"
+
+        # Download extensions
+        if [ "${CLEAN_EXTENSIONS}" = 'true' ]; then
+          rm -rf /data/config/auto/extensions/*
+          echo "Extensions cleaned"
+        fi
+        install_extension() {
+          name="$1"
+          url="$2"
+          if [ ! -d "/data/config/auto/extensions/$name" ]; then
+            git clone "$url" "/data/config/auto/extensions/$name"
+          else
+            cd "/data/config/auto/extensions/$name"
+            git pull
+            cd -
+          fi
+        }
+        install_extension sd-webui-deforum "https://github.com/deforum-art/sd-webui-deforum.git"
+        install_extension sd-webui-controlnet "https://github.com/Mikubill/sd-webui-controlnet.git"
+        install_extension sd-webui-text2video "https://github.com/kabachuha/sd-webui-text2video.git"
+        install_extension sd-webui-mov2mov "https://github.com/Scholar01/sd-webui-mov2mov.git"
+        install_extension sd-webui-bg-mask "https://github.com/Scholar01/sd-webui-bg-mask.git"
+        install_extension TemporalKit "https://github.com/CiaraStrawberry/TemporalKit.git"
+
+        # Download extension models
+        download_on_sha() {
+          url="$1"
+          file_path="$2"
+          expected_sha="$3"
+          if [ -e "$file_path" ]; then
+            sha="$(sha256sum "$file_path" | cut -d ' ' -f 1)"
+            if [ "$sha" != "$expected_sha" ]; then
+              echo "Downloading $url"
+              rm -f "$file_path"
+              mkdir -p "$(dirname "$file_path")"
+              curl --progress-bar -fL "$url" -o "$file_path"
+              echo "Downloaded at $file_path"
+            else
+              echo "Already downloaded at $file_path"
+            fi
+          else
+            echo "Downloading $url"
+            mkdir -p "$(dirname "$file_path")"
+            curl --progress-bar -fL "$url" -o "$file_path"
+            echo "Downloaded at $file_path"
+          fi
+        }
+        download_on_sha "https://huggingface.co/kabachuha/modelscope-damo-text2video-pruned-weights/resolve/main/text2video_pytorch_model.pth" "/data/models/ModelScope/t2v/text2video_pytorch_model.pth" "cbba5db98d5432378f9ccdb6bd572768c7ff190dd83b9b76c3218594c793fedd"
+        download_on_sha "https://huggingface.co/kabachuha/modelscope-damo-text2video-pruned-weights/resolve/main/open_clip_pytorch_model.bin" "/data/models/ModelScope/t2v/open_clip_pytorch_model.bin" "73c32c62eebf1112b0693ff9e3ecfa0573ba02cd279420ea4da4af1cbfb39e3b"
+        download_on_sha "https://huggingface.co/kabachuha/modelscope-damo-text2video-pruned-weights/resolve/main/VQGAN_autoencoder.pth" "/data/models/ModelScope/t2v/VQGAN_autoencoder.pth" "930e9865584beae2405d29bc06a05db3bb6a5b34eedd40a7db29b9156ed7d098"
+        curl -fsSL "https://huggingface.co/kabachuha/modelscope-damo-text2video-pruned-weights/raw/main/configuration.json" -o /data/models/ModelScope/t2v/configuration.json
+
+        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth" "/data/models/ControlNet/control_v11p_sd15_canny.pth" "f99cfe4c70910e38e3fece9918a4979ed7d3dcf9b81cee293e1755363af5406a"
+        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_canny.yaml" -o /data/models/ControlNet/control_v11p_sd15_canny.yaml
+        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_ip2p.pth" "/data/models/ControlNet/control_v11e_sd15_ip2p.pth" "a8d77429b111b25ffad4adb4c686a19c73c905d638dd8acb1e0b1d1da300192c"
+        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11e_sd15_ip2p.yaml" -o /data/models/ControlNet/control_v11e_sd15_ip2p.yaml
+        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth" "/data/models/ControlNet/control_v11p_sd15s2_lineart_anime.pth" "59169ab86e8ae15ad50208cc5832f1cc598b95391d4482ba742b344c8f7f6904"
+        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15s2_lineart_anime.yaml" -o /data/models/ControlNet/control_v11p_sd15s2_lineart_anime.yaml
+        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth" "/data/models/ControlNet/control_v11p_sd15_lineart.pth" "fb5fb912696830da948e5056b50adfa3fcc68ff760c43e4e7a8499853af43c61"
+        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_lineart.yaml" -o /data/models/ControlNet/control_v11p_sd15_lineart.yaml
+
+        download_on_sha "https://huggingface.co/Envvi/Inkpunk-Diffusion/resolve/main/Inkpunk-Diffusion-v2.ckpt" "/data/models/Stable-diffusion/Inkpunk-Diffusion-v2.ckpt" "2182245415908822cbac065128a4c5144cc547d0701feb21241cb4e70bb5cf56"
+        download_on_sha "https://huggingface.co/webui/stable-diffusion-2-1/resolve/main/v2-1_768-ema-pruned-fp16.safetensors" "/data/models/Stable-diffusion/v2-1_768-ema-pruned-fp16.safetensors" "370234eabba70b10654f6d2508cf28f946de41c43e30ed3eb44ce5850e9c847b"
+        curl "https://huggingface.co/webui/stable-diffusion-2-1/raw/main/v2-1_768-ema-pruned-fp16.yaml" -o "/data/models/Stable-diffusion/v2-1_768-ema-pruned-fp16.yaml"
+        download_on_sha "https://huggingface.co/stabilityai/stable-diffusion-2-1/resolve/main/v2-1_768-ema-pruned.safetensors" "/data/models/Stable-diffusion/v2-1_768-ema-pruned.safetensors" "dcd690123cfc64383981a31d955694f6acf2072a80537fdb612c8e58ec87a8ac"
+        curl "https://raw.githubusercontent.com/Stability-AI/stablediffusion/main/configs/stable-diffusion/v2-inference.yaml" -o "/data/models/Stable-diffusion/v2-1_768-ema-pruned.yaml"
+        download_on_sha "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors" "/data/models/Stable-diffusion/sd_xl_base_1.0_0.9vae.safetensors" "e6bb9ea85bbf7bf6478a7c6d18b71246f22e95d41bcdd80ed40aa212c33cfeff"
+        download_on_sha "https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors" "/data/models/Stable-diffusion/sd_xl_refiner_1.0_0.9vae.safetensors" "8d0ce6c016004cbdacd50f937dad381d8c396628d621a7f97191470532780164"
+
+        # Launch WebUI
+        /docker/entrypoint.sh sh -c '
+        # Install missing pip package
+        . /opt/conda/bin/activate
+        pip uninstall -y tqdm
+        pip install -U tqdm insightface
+
+        # Run indefinitely
+        while true; do
+          python -u webui.py --listen --port 7860 ${CLI_ARGS} || true
+        done
+        '
