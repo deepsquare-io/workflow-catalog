@@ -2,25 +2,18 @@
 enableLogging: true
 resources:
   tasks: 1
-  cpusPerTask: 8
-  memPerCpu: 8000
-  gpus: 2
+  cpusPerTask: 2
+  memPerCpu: 10000
+  gpus: 1
 continuousOutputSync: true
 steps:
   - name: automatic111
     run:
-      env:
-        - key: MODEL_NAME
-          value: vicuna-13b
       resources:
-        gpusPerTask: 2
+        gpusPerTask: 1
       container:
         registry: registry-1.deepsquare.run
         image: library/automatic111:gpu
-        mounts:
-          - hostDir: '/data/beegfs/models'
-            containerDir: '/opt/models'
-            options: ro
       network: slirp4netns
       customNetworkInterfaces:
         - bore:

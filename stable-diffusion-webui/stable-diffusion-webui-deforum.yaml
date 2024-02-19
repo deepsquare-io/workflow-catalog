@@ -1,36 +1,25 @@
 # yaml-language-server: $schema=../.job.schema.json
 enableLogging: true
+
 resources:
   tasks: 1
-  cpusPerTask: 8
-  memPerCpu: 8000
-  gpus: 2
-continuousOutputSync: true
+  cpusPerTask: 2
+  memPerCpu: 10000
+  gpus: 1
+
 steps:
-  - use:
-      source: github.com/deepsquare-io/workflow-modules/tty2web
   - name: automatic111
     run:
-      env:
-        - key: MODEL_NAME
-          value: vicuna-13b
       resources:
-        gpusPerTask: 2
+        gpusPerTask: 1
       container:
         registry: registry-1.deepsquare.run
         image: library/automatic111:gpu
-        mounts:
-          - hostDir: '/data/beegfs/models'
-            containerDir: '/opt/models'
-            options: ro
       network: slirp4netns
       customNetworkInterfaces:
         - bore:
             boreAddress: bore.deepsquare.run:2200
             targetPort: 7860
-        - bore:
-            boreAddress: bore.deepsquare.run:2200
-            targetPort: 8080
       mapGid: 0
       mapUid: 0
       command: |
@@ -44,8 +33,10 @@ steps:
         cd /home/app/project/stable-diffusion-webui
         git clone https://github.com/deforum-art/sd-webui-deforum extensions/deforum
         git clone https://github.com/Mikubill/sd-webui-controlnet.git extensions/sd-webui-controlnet
+        # git clone https://github.com/kabachuha/sd-webui-text2video.git extensions/sd-webui-text2video
+        # . /home/app/project/stable-diffusion-webui/venv/bin/activate
+        # pip install tqdm
         mkdir -p extensions/sd-webui-controlnet/models
         wget -qO extensions/sd-webui-controlnet/models/control_v11e_sd15_ip2p.pth https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_ip2p.pth
         sed -i 's/can_run_as_root=0/can_run_as_root=1/' ./webui.sh
-        "$STORAGE_PATH/tty2web" --permit-write --port 8080 --credential admin:password bash &
         ./webui.sh --listen --port 7860 --enable-insecure-extension-access
