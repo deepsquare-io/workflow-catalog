@@ -166,6 +166,8 @@ steps:
         download_on_sha "https://huggingface.co/Lykon/DreamShaper/resolve/main/DreamShaper_8_pruned.safetensors" "/data/models/Stable-diffusion/DreamShaper_8_pruned.safetensors" "879db523c30d3b9017143d56705015e15a2cb5628762c11d086fed9538abd7fd"
         download_on_sha "https://huggingface.co/gsdf/Counterfeit-V3.0/resolve/main/Counterfeit-V3.0_fix_fp16.safetensors" "/data/models/Stable-diffusion/Counterfeit-V3.0_fix_fp16.safetensors" "a54c944e4c04e9d9ca43468ef5b90ea0408bb6264829a4980de79a768df7179f"
         download_on_sha "https://huggingface.co/gsdf/Replicant-V3.0/resolve/main/Replicant-V3.0_fp16.safetensors" "/data/models/Stable-diffusion/Replicant-V3.0_fp16.safetensors" "cf65f48ecfd2fb6b7b8a83eb3f99448d6e85b1ef4261c2f9ecc743d0f72decf0"
+        download_on_sha "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors" "/data/models/Stable-diffusion/v1-5-pruned-emaonly.safetensors" "6ce0161689b3853acaa03779ec93eafe75a02f4ced659bee03f50797806fa2fa"
+        curl -fsSL "https://huggingface.co/runwayml/stable-diffusion-v1-5/raw/main/v1-inference.yaml" -o "/data/models/Stable-diffusion/v1-5-pruned-emaonly.yaml"
 
         # Share the models
         chmod -R 777 $DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models
