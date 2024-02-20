@@ -168,11 +168,26 @@ steps:
         download_on_sha "https://huggingface.co/gsdf/Replicant-V3.0/resolve/main/Replicant-V3.0_fp16.safetensors" "/data/models/Stable-diffusion/Replicant-V3.0_fp16.safetensors" "cf65f48ecfd2fb6b7b8a83eb3f99448d6e85b1ef4261c2f9ecc743d0f72decf0"
         download_on_sha "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors" "/data/models/Stable-diffusion/v1-5-pruned-emaonly.safetensors" "6ce0161689b3853acaa03779ec93eafe75a02f4ced659bee03f50797806fa2fa"
         curl -fsSL "https://huggingface.co/runwayml/stable-diffusion-v1-5/raw/main/v1-inference.yaml" -o "/data/models/Stable-diffusion/v1-5-pruned-emaonly.yaml"
+        download_on_sha "https://huggingface.co/runwayml/stable-diffusion-inpainting/blob/main/sd-v1-5-inpainting.ckpt" "/data/models/Stable-diffusion/sd-v1-5-inpainting.ckpt" "c6bbc15e3224e6973459ba78de4998b80b50112b0ae5b5c67113d56b4e366b19"
+
+        # GAN
+        download_on_sha "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.4/GFPGANv1.4.pth" "/data/models/GFPGAN/GFPGANv1.4.pth" "e2cd4703ab14f4d01fd1383a8a8b266f9a5833dacee8e6a79d3bf21a1b6be5ad"
+        download_on_sha "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth" "/data/models/RealESRGAN/RealESRGAN_x4plus.pth" "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1"
+        download_on_sha "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth" "/data/models/RealESRGAN/RealESRGAN_x4plus_anime_6B.pth" "f872d837d3c90ed2e05227bed711af5671a6fd1c9f7d7e91c911a61f155e99da"
+
+        # Latent Upscaling
+        mkdir -p /data/models/LDSR
+        curl -fsSL https://heibox.uni-heidelberg.de/f/31a76b13ea27482981b4/?dl=1 -o "/data/models/LDSR/project.yaml"
+        download_on_sha "https://heibox.uni-heidelberg.de/f/578df07c8fc04ffbadf3/?dl=1" "/data/models/LDSR/model.ckpt" "c209caecac2f97b4bb8f4d726b70ac2ac9b35904b7fc99801e1f5e61f9210c13"
+
+        # VAE
+        download_on_sha "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.safetensors" "/data/models/VAE/vae-ft-mse-840000-ema-pruned.safetensors" "735e4c3a447a3255760d7f86845f09f937809baa529c17370d83e4c3758f3c75"
+        download_on_sha "https://huggingface.co/hakurei/waifu-diffusion-v1-4/resolve/main/vae/kl-f8-anime2.ckpt" "/data/models/VAE/kl-f8-anime2.ckpt" "df3c506e51b7ee1d7b5a6a2bb7142d47d488743c96aa778afb0f53a2cdc2d38d"
 
         # Share the models
-        chmod -R 777 $DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models
-        touch $DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep || true
-        chmod 755 $DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep || true
+        chmod -R 777 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models"
+        touch "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
+        chmod 755 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
 
         # Launch WebUI
         /docker/entrypoint.sh sh -c '
