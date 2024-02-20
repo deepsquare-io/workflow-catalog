@@ -14,7 +14,7 @@ steps:
         - key: CLI_ARGS
           value: --allow-code --xformers --enable-insecure-extension-access --api --no-half
         - key: ONLY_CHECK_PRESENCE # Only check presence of files instead of doing a sum check
-          value: 'false'
+          value: 'true'
       resources:
         gpusPerTask: 1
       container:
@@ -30,7 +30,7 @@ steps:
       command: |
         set -e
 
-        apt update -y && apt install curl ffmpeg -y
+        apt update -y && apt install curl -y
 
         # Prepare cache
         mkdir -p "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" "$STORAGE_PATH/stable-diffusion-extensions" || true
@@ -67,6 +67,7 @@ steps:
         install_extension sd-webui-bg-mask "https://github.com/Scholar01/sd-webui-bg-mask.git"
         install_extension TemporalKit "https://github.com/CiaraStrawberry/TemporalKit.git"
         install_extension stable-diffusion-webui-state "https://github.com/ilian6806/stable-diffusion-webui-state.git"
+        install_extension sd-model-downloader "https://github.com/Iyashinouta/sd-model-downloader.git"
 
         # Download extension models
         download_on_sha() {
@@ -170,6 +171,13 @@ steps:
         curl -fsSL "https://huggingface.co/runwayml/stable-diffusion-v1-5/raw/main/v1-inference.yaml" -o "/data/models/Stable-diffusion/v1-5-pruned-emaonly.yaml"
         download_on_sha "https://huggingface.co/runwayml/stable-diffusion-inpainting/resolve/main/sd-v1-5-inpainting.ckpt" "/data/models/Stable-diffusion/sd-v1-5-inpainting.ckpt" "c6bbc15e3224e6973459ba78de4998b80b50112b0ae5b5c67113d56b4e366b19"
         download_on_sha "https://huggingface.co/stabilityai/sdxl-turbo/resolve/main/sd_xl_turbo_1.0_fp16.safetensors" "/data/models/Stable-diffusion/sd_xl_turbo_1.0_fp16.safetensors" "e869ac7d6942cb327d68d5ed83a40447aadf20e0c3358d98b2cc9e270db0da26"
+        download_on_sha "https://huggingface.co/stabilityai/stable-video-diffusion-img2vid/resolve/main/svd.safetensors" "/data/models/Stable-diffusion/svd.safetensors" "3e0994626df395a3831de024f11b2d9d241143bb6f16e2efbacced248aa18ce0"
+        download_on_sha "https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt/resolve/main/svd_xt.safetensors" "/data/models/Stable-diffusion/svd_xt.safetensors" "b2652c23d64a1da5f14d55011b9b6dce55f2e72e395719f1cd1f8a079b00a451"
+        download_on_sha "https://huggingface.co/stabilityai/stable-cascade/resolve/main/comfyui_checkpoints/stable_cascade_stage_b.safetensors" "/data/models/Stable-diffusion/stable_cascade_stage_b.safetensors" "6c218dc948575e3b14b03dffe2014d7870ac505005770ce3abdc28e920a03c05"
+        download_on_sha "https://huggingface.co/stabilityai/stable-cascade/resolve/main/comfyui_checkpoints/stable_cascade_stage_c.safetensors" "/data/models/Stable-diffusion/stable_cascade_stage_c.safetensors" "088ddf1e444abf399007b2da2bac87791df165c69f477994f6b3c745a20904b0"
+        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-aesthetic-unclip-h-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-aesthetic-unclip-h-fp16.safetensors" "062603a01ed43b081df0c1b99f82449ba97283135810cca5fae204a32970e027"
+        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-aesthetic-unclip-l-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-aesthetic-unclip-l-fp16.safetensors" "cc1189bc5ffa0f4d7aeb5d17ac672a7f3b85e89b838e2bfa4e12426ee373f5fa"
+        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-unclip-h-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-unclip-h-fp16.safetensors" "73720150fa784a777343df3f49ca7d18b481d2ec042982eb59e9a8eaaaebb987"
 
         # GAN
         download_on_sha "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.4/GFPGANv1.4.pth" "/data/models/GFPGAN/GFPGANv1.4.pth" "e2cd4703ab14f4d01fd1383a8a8b266f9a5833dacee8e6a79d3bf21a1b6be5ad"

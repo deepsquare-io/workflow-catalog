@@ -1,0 +1,107 @@
+# yaml-language-server: $schema=/home/marc/.cache/.job.schema.json
+enableLogging: true
+
+resources:
+  tasks: 1
+  cpusPerTask: 2
+  memPerCpu: 10000
+  gpus: 1
+
+steps:
+  - name: comfyui
+    run:
+      env:
+        - key: CLI_ARGS
+          value: ''
+        - key: ONLY_CHECK_PRESENCE # Only check presence of files instead of doing a sum check
+          value: 'true'
+      resources:
+        gpusPerTask: 1
+      container:
+        registry: registry-1.deepsquare.run
+        image: library/comfy:abdbarho
+      network: slirp4netns
+      customNetworkInterfaces:
+        - bore:
+            boreAddress: bore.deepsquare.run:2200
+            targetPort: 7860
+      mapGid: 0
+      mapUid: 0
+      command: |
+        set -e
+
+        apt update -y && apt install curl -y
+
+        # Prepare cache
+        mkdir -p "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" "$STORAGE_PATH/stable-diffusion-extensions" || true
+        # Take ownership of the shared folder
+        touch "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
+
+        # Mount user cache
+        mkdir -p "$DEEPSQUARE_SHARED_TMP/cache" "$HOME/.cache"
+        mount --bind "$DEEPSQUARE_SHARED_TMP/cache" "$HOME/.cache"
+        # Mount the weights
+        mkdir -p "$STORAGE_PATH/sd-data" /data
+        mount --bind "$STORAGE_PATH/sd-data" /data
+        mkdir -p /data/models
+        mount --bind "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" /data/models
+        # Mount the output
+        mkdir -p "$STORAGE_PATH/output" /output
+        mount --bind "$STORAGE_PATH/output" "/output"
+        mkdir -p "$STORAGE_PATH/extensions" /data/config/comfy/custom_nodes
+        mount --bind "$STORAGE_PATH/extensions" /data/config/comfy/custom_nodes
+
+        install_extension() {
+          name="$1"
+          url="$2"
+          if [ ! -d "/data/config/comfy/custom_nodes/$name" ]; then
+            git clone "$url" "/data/config/comfy/custom_nodes/$name"
+          else
+            cd "/data/config/comfy/custom_nodes/$name"
+            git pull
+            cd -
+          fi
+        }
+        install_extension ComfyUI-Manager "https://github.com/ltdrdata/ComfyUI-Manager.git"
+
+        # Note: this script does not download the standard models.
+        # Please use stable-diffusion-webui.yaml for that.
+
+        # Download extension models
+        download_on_sha() {
+          url="$1"
+          file_path="$2"
+          expected_sha="$3"
+          if [ -e "$file_path" ]; then
+            if [ "$ONLY_CHECK_PRESENCE" = "true" ]; then
+              echo "Already downloaded at $file_path"
+              return
+            fi
+            sha="$(sha256sum "$file_path" | cut -d ' ' -f 1)"
+            if [ "$sha" != "$expected_sha" ]; then
+              echo "Downloading $url"
+              rm -f "$file_path"
+              mkdir -p "$(dirname "$file_path")"
+              curl --progress-bar -fL "$url" -o "$file_path"
+              echo "Downloaded at $file_path"
+            else
+              echo "Already downloaded at $file_path"
+            fi
+          else
+            echo "Downloading $url"
+            mkdir -p "$(dirname "$file_path")"
+            curl --progress-bar -fL "$url" -o "$file_path"
+            echo "Downloaded at $file_path"
+          fi
+        }
+        download_on_sha "https://huggingface.co/stabilityai/stable-video-diffusion-img2vid/resolve/main/svd.safetensors" "/data/models/Stable-diffusion/svd.safetensors" "3e0994626df395a3831de024f11b2d9d241143bb6f16e2efbacced248aa18ce0"
+        download_on_sha "https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt/resolve/main/svd_xt.safetensors" "/data/models/Stable-diffusion/svd_xt.safetensors" "b2652c23d64a1da5f14d55011b9b6dce55f2e72e395719f1cd1f8a079b00a451"
+        download_on_sha "https://huggingface.co/stabilityai/stable-cascade/resolve/main/comfyui_checkpoints/stable_cascade_stage_b.safetensors" "/data/models/Stable-diffusion/stable_cascade_stage_b.safetensors" "6c218dc948575e3b14b03dffe2014d7870ac505005770ce3abdc28e920a03c05"
+        download_on_sha "https://huggingface.co/stabilityai/stable-cascade/resolve/main/comfyui_checkpoints/stable_cascade_stage_c.safetensors" "/data/models/Stable-diffusion/stable_cascade_stage_c.safetensors" "088ddf1e444abf399007b2da2bac87791df165c69f477994f6b3c745a20904b0"
+        download_on_sha "https://huggingface.co/stabilityai/stable-cascade/resolve/main/text_encoder/model.safetensors" "/data/models/CLIPEncoder/model.safetensors" "088ddf1e444abf399007b2da2bac87791df165c69f477994f6b3c745a20904b0"
+        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-aesthetic-unclip-h-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-aesthetic-unclip-h-fp16.safetensors" "062603a01ed43b081df0c1b99f82449ba97283135810cca5fae204a32970e027"
+        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-aesthetic-unclip-l-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-aesthetic-unclip-l-fp16.safetensors" "cc1189bc5ffa0f4d7aeb5d17ac672a7f3b85e89b838e2bfa4e12426ee373f5fa"
+        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-unclip-h-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-unclip-h-fp16.safetensors" "73720150fa784a777343df3f49ca7d18b481d2ec042982eb59e9a8eaaaebb987"
+
+        cd /stable-diffusion
+        /docker/entrypoint.sh python -u main.py --listen --port 7860 ${CLI_ARGS}
