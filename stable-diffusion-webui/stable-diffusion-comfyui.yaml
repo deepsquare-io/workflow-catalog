@@ -63,6 +63,7 @@ steps:
           fi
         }
         install_extension ComfyUI-Manager "https://github.com/ltdrdata/ComfyUI-Manager.git"
+        install_extension comfyui-animatediff "https://github.com/ArtVentureX/comfyui-animatediff.git"
 
         # Note: this script does not download the standard models.
         # Please use stable-diffusion-webui.yaml for that.
@@ -103,12 +104,20 @@ steps:
         download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-aesthetic-unclip-l-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-aesthetic-unclip-l-fp16.safetensors" "cc1189bc5ffa0f4d7aeb5d17ac672a7f3b85e89b838e2bfa4e12426ee373f5fa"
         download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-unclip-h-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-unclip-h-fp16.safetensors" "73720150fa784a777343df3f49ca7d18b481d2ec042982eb59e9a8eaaaebb987"
 
+        # Motion module models
+        download_on_sha "https://huggingface.co/conrevo/AnimateDiff-A1111/resolve/main/motion_module/mm_sd15_v3.safetensors" "/data/models/Motion-module/mm_sd15_v3.safetensors" "a8ca0eadb18c6ad6652bca344a458f31780901a87f765bf95a81ef9c5be55f29"
+        download_on_sha "https://huggingface.co/conrevo/AnimateDiff-A1111/resolve/main/motion_module/mm_sdxl_v10_beta.safetensors" "/data/models/Motion-module/mm_sdxl_v10_beta.safetensors" "deda6b381d44c3e60d410432fb5be4d7147460948e0edb55a7d5997804e5f6c3"
+        download_on_sha "https://huggingface.co/conrevo/AnimateDiff-A1111/resolve/main/motion_module/mm_sdxl_hs.safetensors" "/data/models/Motion-module/mm_sdxl_hs.safetensors" "a8345a99396e5be93e0f90ace4a78ec0bd85d2d7cf63e2aae747fe64288aab7b"
+        download_on_sha "https://huggingface.co/guoyww/animatediff/resolve/main/v3_sd15_mm.ckpt" "/data/models/Motion-module/v3_sd15_mm.ckpt" "2412711886f61091846f53204aabc38aa6e09356d62a9808abe4daa802168343"
+        download_on_sha "https://huggingface.co/guoyww/animatediff/resolve/main/mm_sd_v15_v2.ckpt" "/data/models/Motion-module/mm_sd_v15_v2.ckpt" "69ed0f5fef82b110aca51bcab73b21104242bc65d6ab4b8b2a2a94d31cad1bf0"
+        download_on_sha "https://huggingface.co/guoyww/animatediff/resolve/main/mm_sdxl_v10_beta.ckpt" "/data/models/Motion-module/mm_sdxl_v10_beta.ckpt" "fa4950a062e892fca50d4c441fcd6130d1ad68a621a0404d155be17580072978"
+        mkdir -p /data/config/comfy/custom_nodes/comfyui-animatediff/models
+        mount --bind "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/Motion-module" "/data/config/comfy/custom_nodes/comfyui-animatediff/models"
+
         # Share the models
-        set +e
         chmod -R 777 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" || true
         touch "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
         chmod 755 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
-        set -e
 
         cd /stable-diffusion
         /docker/entrypoint.sh python -u main.py --listen --port 7860 ${CLI_ARGS}
