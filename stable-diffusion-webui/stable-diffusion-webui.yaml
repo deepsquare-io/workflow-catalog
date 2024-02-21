@@ -194,9 +194,11 @@ steps:
         download_on_sha "https://huggingface.co/hakurei/waifu-diffusion-v1-4/resolve/main/vae/kl-f8-anime2.ckpt" "/data/models/VAE/kl-f8-anime2.ckpt" "df3c506e51b7ee1d7b5a6a2bb7142d47d488743c96aa778afb0f53a2cdc2d38d"
 
         # Share the models
+        set +e
         chmod -R 777 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" || true
         touch "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
         chmod 755 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
+        set -e
 
         # Launch WebUI
         /docker/entrypoint.sh sh -c '

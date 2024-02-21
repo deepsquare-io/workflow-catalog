@@ -104,9 +104,11 @@ steps:
         download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-unclip-h-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-unclip-h-fp16.safetensors" "73720150fa784a777343df3f49ca7d18b481d2ec042982eb59e9a8eaaaebb987"
 
         # Share the models
+        set +e
         chmod -R 777 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" || true
         touch "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
         chmod 755 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
+        set -e
 
         cd /stable-diffusion
         /docker/entrypoint.sh python -u main.py --listen --port 7860 ${CLI_ARGS}
