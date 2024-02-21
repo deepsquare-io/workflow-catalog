@@ -68,7 +68,7 @@ steps:
         install_extension TemporalKit "https://github.com/CiaraStrawberry/TemporalKit.git"
         install_extension stable-diffusion-webui-state "https://github.com/ilian6806/stable-diffusion-webui-state.git"
         install_extension sd-model-downloader "https://github.com/Iyashinouta/sd-model-downloader.git"
-        install_extension stable-diffusion-webui-images-browser https://github.com/yfszzx/stable-diffusion-webui-images-browser
+        install_extension stable-diffusion-webui-images-browser https://github.com/yfszzx/stable-diffusion-webui-images-browser.git
 
         # Download extension models
         download_on_sha() {
