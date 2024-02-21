@@ -12,7 +12,7 @@ steps:
     run:
       env:
         - key: CLI_ARGS
-          value: --allow-code --xformers --enable-insecure-extension-access --api --no-half --administrator
+          value: --allow-code --xformers --enable-insecure-extension-access --api --no-half --no-half-vae --administrator
         - key: ONLY_CHECK_PRESENCE # Only check presence of files instead of doing a sum check
           value: 'true'
       resources:

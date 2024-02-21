@@ -64,6 +64,9 @@ steps:
         }
         install_extension ComfyUI-Manager "https://github.com/ltdrdata/ComfyUI-Manager.git"
         install_extension comfyui-animatediff "https://github.com/ArtVentureX/comfyui-animatediff.git"
+        install_extension ComfyUI-Advanced-ControlNet https://github.com/Kosinkadink/ComfyUI-Advanced-ControlNet.git
+        install_extension ComfyUI-AnimateDiff-Evolved https://github.com/Kosinkadink/ComfyUI-AnimateDiff-Evolved.git
+        install_extension comfyui_controlnet_aux https://github.com/Fannovel16/comfyui_controlnet_aux.git
 
         # Note: this script does not download the standard models.
         # Please use stable-diffusion-webui.yaml for that.
@@ -120,7 +123,9 @@ steps:
         chmod 755 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
 
         cd /stable-diffusion
-        /docker/entrypoint.sh python -u main.py --listen --port 7860 ${CLI_ARGS}
+        while true; do
+        /docker/entrypoint.sh python -u main.py --listen --port 7860 ${CLI_ARGS} || true
+        done
     finally:
       - run:
           command: |
