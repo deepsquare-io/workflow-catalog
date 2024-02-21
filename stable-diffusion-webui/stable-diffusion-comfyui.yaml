@@ -114,6 +114,8 @@ steps:
         download_on_sha "https://huggingface.co/guoyww/animatediff/resolve/main/mm_sdxl_v10_beta.ckpt" "/data/models/Motion-module/mm_sdxl_v10_beta.ckpt" "fa4950a062e892fca50d4c441fcd6130d1ad68a621a0404d155be17580072978"
         mkdir -p /data/config/comfy/custom_nodes/comfyui-animatediff/models
         mount --bind "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/Motion-module" "/data/config/comfy/custom_nodes/comfyui-animatediff/models"
+        mkdir -p /data/config/comfy/custom_nodes/ComfyUI-AnimateDiff-Evolved/models
+        mount --bind "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/Motion-module" "/data/config/comfy/custom_nodes/ComfyUI-AnimateDiff-Evolved/models"
 
         # Share the models
         chmod -R 777 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" || true
