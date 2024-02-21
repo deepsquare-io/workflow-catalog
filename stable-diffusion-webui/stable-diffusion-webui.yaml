@@ -12,7 +12,7 @@ steps:
     run:
       env:
         - key: CLI_ARGS
-          value: --allow-code --xformers --enable-insecure-extension-access --api --no-half
+          value: --allow-code --xformers --enable-insecure-extension-access --api --no-half --administrator
         - key: ONLY_CHECK_PRESENCE # Only check presence of files instead of doing a sum check
           value: 'true'
       resources:
@@ -48,6 +48,8 @@ steps:
         mount --bind "$STORAGE_PATH/stable-diffusion-extensions" /data/config/auto/extensions
         # Mount the output
         mount --bind "$STORAGE_PATH/output" "/output"
+        mkdir -p "/stable-diffusion-webui/outputs"
+        mount --bind "$STORAGE_PATH/output" "/stable-diffusion-webui/outputs"
 
         install_extension() {
           name="$1"
