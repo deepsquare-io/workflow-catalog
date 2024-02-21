@@ -30,8 +30,6 @@ steps:
       command: |
         set -e
 
-        apt update -y && apt install curl -y
-
         # Prepare cache
         mkdir -p "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" "$STORAGE_PATH/stable-diffusion-extensions" || true
         # Take ownership of the shared folder
