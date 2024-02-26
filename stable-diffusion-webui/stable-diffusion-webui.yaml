@@ -24,7 +24,7 @@ steps:
       customNetworkInterfaces:
         - bore:
             boreAddress: bore.deepsquare.run:2200
-            targetPort: 7860
+            targetPort: 8080
       mapGid: 0
       mapUid: 0
       command: |
@@ -67,10 +67,10 @@ steps:
         install_extension sd-webui-bg-mask "https://github.com/Scholar01/sd-webui-bg-mask.git"
         install_extension TemporalKit "https://github.com/CiaraStrawberry/TemporalKit.git"
         install_extension stable-diffusion-webui-state "https://github.com/ilian6806/stable-diffusion-webui-state.git"
-        install_extension sd-model-downloader "https://github.com/Iyashinouta/sd-model-downloader.git"
+        #install_extension sd-model-downloader "https://github.com/Iyashinouta/sd-model-downloader.git"
         install_extension stable-diffusion-webui-images-browser https://github.com/yfszzx/stable-diffusion-webui-images-browser.git
-        install_extension sd-webui-animatediff https://github.com/continue-revolution/sd-webui-animatediff.git
-        install_extension stable-diffusion-webui-prompt-travel https://github.com/Kahsolt/stable-diffusion-webui-prompt-travel.git
+        #install_extension sd-webui-animatediff https://github.com/continue-revolution/sd-webui-animatediff.git
+        #install_extension stable-diffusion-webui-prompt-travel https://github.com/Kahsolt/stable-diffusion-webui-prompt-travel.git
 
         # Download extension models
         download_on_sha() {
@@ -217,12 +217,25 @@ steps:
         # Disable rsync
         sed -Ei 's/^(rsync.*)/#\1/g' /docker/entrypoint.sh
 
+        cat << 'EOF' > Caddyfile
+        :8080 {
+          reverse_proxy localhost:7860
+        }
+        EOF
+
         # Launch WebUI
         /docker/entrypoint.sh sh -c '
         # Update broken packages (tqdm is overwritten when installing packages)
         . /opt/conda/bin/activate
         pip uninstall -y tqdm
         pip install -U tqdm insightface
+
+        sh -c "
+        while ! nc -vz localhost 7860; do
+          sleep 1
+        done
+        caddy run --config Caddyfile
+        " >/dev/null 2>&1 &
 
         # Run indefinitely
         while true; do

@@ -24,7 +24,7 @@ steps:
       customNetworkInterfaces:
         - bore:
             boreAddress: bore.deepsquare.run:2200
-            targetPort: 7860
+            targetPort: 8080
       mapGid: 0
       mapUid: 0
       command: |
@@ -122,9 +122,22 @@ steps:
         touch "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
         chmod 755 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/.keep" || true
 
+        cat << 'EOF' > Caddyfile
+        :8080 {
+          reverse_proxy localhost:7860
+        }
+        EOF
+
+        sh -c "
+        while ! nc -vz localhost 7860; do
+          sleep 1
+        done
+        caddy run --config Caddyfile &>/dev/null
+        " >/dev/null 2>&1 &
+
         cd /stable-diffusion
         while true; do
-        /docker/entrypoint.sh python -u main.py --listen --port 7860 ${CLI_ARGS} || true
+          /docker/entrypoint.sh python -u main.py --listen --port 7860 ${CLI_ARGS} || true
         done
     finally:
       - run:
