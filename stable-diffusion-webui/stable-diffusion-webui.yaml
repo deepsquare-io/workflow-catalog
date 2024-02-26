@@ -66,8 +66,8 @@ steps:
         install_extension sd-webui-mov2mov "https://github.com/Scholar01/sd-webui-mov2mov.git"
         install_extension sd-webui-bg-mask "https://github.com/Scholar01/sd-webui-bg-mask.git"
         install_extension TemporalKit "https://github.com/CiaraStrawberry/TemporalKit.git"
-        install_extension stable-diffusion-webui-state "https://github.com/ilian6806/stable-diffusion-webui-state.git"
-        #install_extension sd-model-downloader "https://github.com/Iyashinouta/sd-model-downloader.git"
+        #install_extension stable-diffusion-webui-state "https://github.com/ilian6806/stable-diffusion-webui-state.git"
+        install_extension sd-model-downloader "https://github.com/Iyashinouta/sd-model-downloader.git"
         install_extension stable-diffusion-webui-images-browser https://github.com/yfszzx/stable-diffusion-webui-images-browser.git
         #install_extension sd-webui-animatediff https://github.com/continue-revolution/sd-webui-animatediff.git
         #install_extension stable-diffusion-webui-prompt-travel https://github.com/Kahsolt/stable-diffusion-webui-prompt-travel.git
