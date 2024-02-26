@@ -8,6 +8,16 @@ resources:
   gpus: 1
 
 steps:
+  ## Use this to explore files if there are difficulties with WebUI.
+  ## Remember to increase "tasks" to 2 to allow parallel execution.
+  # - launch:
+  #     steps:
+  #       - use:
+  #           source: github.com/deepsquare-io/workflow-modules/http-filebrowser
+  #           args:
+  #             - key: NO_AUTH
+  #               value: 'true'
+
   - name: comfyui
     run:
       env:
