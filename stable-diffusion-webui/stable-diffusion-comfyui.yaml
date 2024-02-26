@@ -54,6 +54,11 @@ steps:
           url="$2"
           if [ ! -d "/data/config/comfy/custom_nodes/$name" ]; then
             git clone "$url" "/data/config/comfy/custom_nodes/$name"
+            cd "/data/config/comfy/custom_nodes/$name"
+            if [ -e "requirements.txt" ]; then
+              pip install -r requirements.txt
+            fi
+            cd -
           else
             cd "/data/config/comfy/custom_nodes/$name"
             git pull
@@ -66,7 +71,6 @@ steps:
         install_extension ComfyUI-AnimateDiff-Evolved https://github.com/Kosinkadink/ComfyUI-AnimateDiff-Evolved.git
         install_extension comfyui_controlnet_aux https://github.com/Fannovel16/comfyui_controlnet_aux.git
         install_extension ComfyUI-VideoHelperSuite https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git
-        install_extension comfyui_controlnet_aux https://github.com/Fannovel16/comfyui_controlnet_aux.git
 
         # Note: this script does not download the standard models.
         # Please use stable-diffusion-webui.yaml for that.
