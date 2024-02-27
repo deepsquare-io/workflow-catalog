@@ -144,6 +144,8 @@ steps:
               value: ''
             - key: USE_LOCAL_WEBSEARCH
               value: ''
+            - key: SEARXNG_QUERY_URL
+              value: ''
 
             - key: WEBSEARCH_ALLOWLIST
               value: '[]'
@@ -179,7 +181,9 @@ steps:
               value: ''
             - key: PARQUET_EXPORT_HF_TOKEN
               value: ''
-            - key: PARQUET_EXPORT_SECRET
+            - key: ADMIN_API_SECRET # secret to admin API calls, like computing usage stats or exporting parquet data
+              value: ''
+            - key: PARQUET_EXPORT_SECRET #DEPRECATED, use ADMIN_API_SECRET instead
               value: ''
 
             - key: RATE_LIMIT
@@ -217,6 +221,10 @@ steps:
 
             - key: ALTERNATIVE_REDIRECT_URLS
               value: '[]'
+            - key: WEBHOOK_URL_REPORT_ASSISTANT #provide webhook url to get notified when an assistant gets reported
+              value: ''
+            - key: ALLOWED_USER_EMAILS
+              value: '[]' # if it's defined, only these emails will be allowed to use the app
             - key: MODELS
               value: |-
                 [
