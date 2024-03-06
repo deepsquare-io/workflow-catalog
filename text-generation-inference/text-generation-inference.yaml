@@ -26,6 +26,8 @@ steps:
             env:
               - key: HF_HOME
                 value: /deepsquare
+              - key: NUMBA_CACHE_DIR
+                value: /deepsquare/disk/tmp
             command: |
               set -e
 
@@ -36,7 +38,7 @@ steps:
               chmod -R 777 $DEEPSQUARE_SHARED_WORLD_TMP/hf-tgi-weights || true
 
               # Launch the model
-              text-generation-launcher --hostname 0.0.0.0 -p 8080 --model-id mistralai/Mistral-7B-Instruct-v0.2
+              text-generation-launcher --hostname 0.0.0.0 -p 8080 --model-id mistralai/Mistral-7B-Instruct-v0.2 --max-input-length 7892 --max-total-tokens 8192 --max-batch-prefill-tokens 8192
               echo "Exited $?"
             network: slirp4netns
             mapGid: 0
@@ -240,8 +242,8 @@ steps:
                       "top_p": 0.95,
                       "repetition_penalty": 1.2,
                       "top_k": 50,
-                      "truncate": 1024,
-                      "max_new_tokens": 1024,
+                      "truncate": 7892,
+                      "max_new_tokens": 2048,
                       "stop": ["</s>"]
                     },
                     "promptExamples": [

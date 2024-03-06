@@ -37,7 +37,7 @@
 
 enableLogging: true
 resources:
-  tasks: 3
+  tasks: 1
   cpusPerTask: 2
   memPerCpu: 10000
   gpus: 1
@@ -59,6 +59,8 @@ steps:
       env:
         - key: HF_HOME
           value: /deepsquare
+        - key: NUMBA_CACHE_DIR
+          value: /deepsquare/disk/tmp
       command: |
         set -e
 
@@ -69,7 +71,7 @@ steps:
         chmod -R 777 $DEEPSQUARE_SHARED_WORLD_TMP/hf-tgi-weights || true
 
         # Launch the model
-        text-generation-launcher --hostname 0.0.0.0 -p 8080 --model-id bigcode/starcoder2-7b --max-total-tokens 8192
+        text-generation-launcher --hostname 0.0.0.0 -p 8080 --model-id bigcode/starcoder2-7b --max-total-tokens 8192 --max-input-length 4096
         echo "Exited $?"
       network: slirp4netns
       mapGid: 0
