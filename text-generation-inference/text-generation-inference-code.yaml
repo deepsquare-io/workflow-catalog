@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../.job.schema.json
+
+## INSTRUCTIONS PLEASE READ
+##
+## This workflow is tuned for "bigcode/starcoder2-7b".
+##
+## 1. Get a static route by fetch the route and secret at https://bore.deepsquare.run.
+##    You'll need Metamask. No cryptocurrency is needed, but you'll need an address to sign login requests.
+## 2. Install llm-vscode by Huggingface or any interfaces for llm-ls. (alternatives written in the Overview of llm-vscode)
+## 3. Edit the settings.json of VSCode to configure the LLM and add:
+##
+## {
+##   #...
+##   "llm.backend": "tgi",
+##   "llm.modelId": "bigcode/starcoder2-7b",
+##   "llm.url": "https://</generate",
+##   "llm.configTemplate": "Custom",
+##   "llm.requestBody": {
+##     "parameters": {
+##       "max_new_tokens": 60,
+##       "temperature": 0.2,
+##       "top_p": 0.95
+##     }
+##   },
+##   "llm.fillInTheMiddle.enabled": true,
+##   "llm.fillInTheMiddle.middle": "<fim_middle>",
+##   "llm.fillInTheMiddle.prefix": "<fim_prefix>",
+##   "llm.fillInTheMiddle.suffix": "<fim_suffix>",
+##   "llm.contextWindow": 8192,
+##   "llm.tokensToClear": [
+##     "<|endoftext|>"
+##   ],
+##   "llm.tokenizer": {
+##     "repository": "bigcode/starcoder2-7b"
+##   }
+## }
+
+enableLogging: true
+resources:
+  tasks: 3
+  cpusPerTask: 2
+  memPerCpu: 10000
+  gpus: 1
+
+virtualNetworks:
+  - name: network
+    gatewayAddress: 10.0.0.1/24
+
+steps:
+  - name: 'text-generation-inference'
+    run:
+      container:
+        deepsquareHosted: true
+        apptainer: true
+        registry: registry-1.deepsquare.run
+        image: library/text-generation-inference:1.4
+      resources:
+        gpusPerTask: 1
+      env:
+        - key: HF_HOME
+          value: /deepsquare
+      command: |
+        set -e
+
+        # Mount the weights
+        mkdir -p /data
+        mkdir -p $DEEPSQUARE_SHARED_WORLD_TMP/hf-tgi-weights
+        mount --bind $DEEPSQUARE_SHARED_WORLD_TMP/hf-tgi-weights /data
+        chmod -R 777 $DEEPSQUARE_SHARED_WORLD_TMP/hf-tgi-weights || true
+
+        # Launch the model
+        text-generation-launcher --hostname 0.0.0.0 -p 8080 --model-id bigcode/starcoder2-7b --max-total-tokens 8192
+        echo "Exited $?"
+      network: slirp4netns
+      mapGid: 0
+      mapUid: 0
+      dns:
+        - 8.8.8.8
+      customNetworkInterfaces:
+        - bore:
+            targetPort: 8080
+            boreAddress: bore.deepsquare.run:2200
+            ## Uncomment "secret" to use a static route instead of a dynamic one.
+            ## Get the secret (token) at https://bore.deepsquare.run/
+            ## Register the route using metamask. Use a long-lived token to avoid registering multiple times.
+            # secret:
