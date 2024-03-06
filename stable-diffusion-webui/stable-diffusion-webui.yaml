@@ -10,13 +10,13 @@ resources:
 steps:
   ## Use this to explore files if there are difficulties with WebUI.
   ## Remember to increase "tasks" to 2 to allow parallel execution.
-  # - launch:
-  #     steps:
-  #       - use:
-  #           source: github.com/deepsquare-io/workflow-modules/http-filebrowser
-  #           args:
-  #             - key: NO_AUTH
-  #               value: 'true'
+  - launch:
+      steps:
+        - use:
+            source: github.com/deepsquare-io/workflow-modules/http-filebrowser
+            args:
+              - key: NO_AUTH
+                value: 'true'
 
   - name: automatic111
     run:
@@ -109,112 +109,6 @@ steps:
             echo "Downloaded at $file_path"
           fi
         }
-
-        # Text2Video
-        download_on_sha "https://huggingface.co/kabachuha/modelscope-damo-text2video-pruned-weights/resolve/main/text2video_pytorch_model.pth" "/data/models/ModelScope/t2v/text2video_pytorch_model.pth" "cbba5db98d5432378f9ccdb6bd572768c7ff190dd83b9b76c3218594c793fedd"
-        download_on_sha "https://huggingface.co/kabachuha/modelscope-damo-text2video-pruned-weights/resolve/main/open_clip_pytorch_model.bin" "/data/models/ModelScope/t2v/open_clip_pytorch_model.bin" "73c32c62eebf1112b0693ff9e3ecfa0573ba02cd279420ea4da4af1cbfb39e3b"
-        download_on_sha "https://huggingface.co/kabachuha/modelscope-damo-text2video-pruned-weights/resolve/main/VQGAN_autoencoder.pth" "/data/models/ModelScope/t2v/VQGAN_autoencoder.pth" "930e9865584beae2405d29bc06a05db3bb6a5b34eedd40a7db29b9156ed7d098"
-        curl -fsSL "https://huggingface.co/kabachuha/modelscope-damo-text2video-pruned-weights/raw/main/configuration.json" -o "/data/models/ModelScope/t2v/configuration.json"
-
-        # ControlNet
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth" "/data/models/ControlNet/control_v11p_sd15_canny.pth" "f99cfe4c70910e38e3fece9918a4979ed7d3dcf9b81cee293e1755363af5406a"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_canny.yaml" -o "/data/models/ControlNet/control_v11p_sd15_canny.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_ip2p.pth" "/data/models/ControlNet/control_v11e_sd15_ip2p.pth" "a8d77429b111b25ffad4adb4c686a19c73c905d638dd8acb1e0b1d1da300192c"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11e_sd15_ip2p.yaml" -o "/data/models/ControlNet/control_v11e_sd15_ip2p.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth" "/data/models/ControlNet/control_v11p_sd15s2_lineart_anime.pth" "59169ab86e8ae15ad50208cc5832f1cc598b95391d4482ba742b344c8f7f6904"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15s2_lineart_anime.yaml" -o "/data/models/ControlNet/control_v11p_sd15s2_lineart_anime.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth" "/data/models/ControlNet/control_v11p_sd15_lineart.pth" "fb5fb912696830da948e5056b50adfa3fcc68ff760c43e4e7a8499853af43c61"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_lineart.yaml" -o "/data/models/ControlNet/control_v11p_sd15_lineart.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_shuffle.pth" "/data/models/ControlNet/control_v11e_sd15_shuffle.pth" "657f632c35176c467e71c471b55b1a0e94ae1a49d739e1b705624f454e638e1d"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11e_sd15_shuffle.yaml" -o "/data/models/ControlNet/control_v11e_sd15_shuffle.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1e_sd15_tile.pth" "/data/models/ControlNet/control_v11f1e_sd15_tile.pth" "8aa69b8d391e72c2fced6a650268137dc0ed594cafe8a2c0f8b994799a21979b"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11f1e_sd15_tile.yaml" -o "/data/models/ControlNet/control_v11f1e_sd15_tile.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth" "/data/models/ControlNet/control_v11f1p_sd15_depth.pth" "761077ffe369fe8cf16ae353f8226bd4ca29805b161052f82c0170c7b50f1d99"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11f1p_sd15_depth.yaml" -o "/data/models/ControlNet/control_v11f1p_sd15_depth.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth" "/data/models/ControlNet/control_v11p_sd15_mlsd.pth" "22dab177f4c4566ac1c8f68dc2c429b023114e15a644e8c7c0e8f956afe92acf"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_mlsd.yaml" -o "/data/models/ControlNet/control_v11p_sd15_mlsd.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth" "/data/models/ControlNet/control_v11p_sd15_normalbae.pth" "9608158c204261259f4b5a7815ced8f5c15e5de4e30a9403d07f68f29f81e941"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_normalbae.yaml" -o "/data/models/ControlNet/control_v11p_sd15_normalbae.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth" "/data/models/ControlNet/control_v11p_sd15_openpose.pth" "db97becd92cd19aff71352a60e93c2508decba3dee64f01f686727b9b406a9dd"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_openpose.yaml" -o "/data/models/ControlNet/control_v11p_sd15_openpose.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth" "/data/models/ControlNet/control_v11p_sd15_scribble.pth" "14d33e8bc14ba679595d976789e4eedc36a3d2d21866ab5896355a7e6677749f"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_scribble.yaml" -o "/data/models/ControlNet/control_v11p_sd15_scribble.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth" "/data/models/ControlNet/control_v11p_sd15_seg.pth" "bad6d753886c0edc978e79dfb06083737ab1bd9702e5b7c0f81b1e16a5ed12cc"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_seg.yaml" -o "/data/models/ControlNet/control_v11p_sd15_seg.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth" "/data/models/ControlNet/control_v11p_sd15_softedge.pth" "20759ef71a109c4796e637d86eea8db492ec9772b6d5cb7a9afd077847b403f3"
-        curl -fsSL "https://huggingface.co/lllyasviel/ControlNet-v1-1/raw/main/control_v11p_sd15_softedge.yaml" -o "/data/models/ControlNet/control_v11p_sd15_softedge.yaml"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/diffusers_xl_canny_full.safetensors" "/data/models/ControlNet/diffusers_xl_canny_full.safetensors" "80664d80e3f233371cb6921110d0a6b7a40c01571905463f9dde5637e7894ed3"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/diffusers_xl_canny_mid.safetensors" "/data/models/ControlNet/diffusers_xl_canny_mid.safetensors" "a9440e186177ddaf4e6d4ef606a8bc8a7d77b3e895c322e19b663a61e0d46447"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/diffusers_xl_canny_small.safetensors" "/data/models/ControlNet/diffusers_xl_canny_small.safetensors" "65a3169af8b29de6a2b37771d6da41d29509dfb1ad0116ec98adfb22204bd571"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/kohya_controllllite_xl_openpose_anime.safetensors" "/data/models/ControlNet/kohya_controllllite_xl_openpose_anime.safetensors" "d4bbf68aaaef6ee7ac21f1c2299f9d8b8f2d87f28d365ebe738cbf4a10609363"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/kohya_controllllite_xl_openpose_anime_v2.safetensors" "/data/models/ControlNet/kohya_controllllite_xl_openpose_anime_v2.safetensors" "6abee66f7787a3416c25c13fa9d4a4a9b56248b7d9832a7e3162d641237da125"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/kohya_controllllite_xl_scribble_anime.safetensors" "/data/models/ControlNet/kohya_controllllite_xl_scribble_anime.safetensors" "feb23bf40e4571745b281d1e0425f759da5c9010e746fd655b4a00ad987ca720"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/kohya_controllllite_xl_canny_anime.safetensors" "/data/models/ControlNet/kohya_controllllite_xl_canny_anime.safetensors" "28c844fc6f5d0fd0dbdcf8100a8b3a4c06b787919c255bfc001a8ce4e53cfa1d"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/kohya_controllllite_xl_canny.safetensors" "/data/models/ControlNet/kohya_controllllite_xl_canny.safetensors" "dbe4f0f4299255f517449e44a9170b234f636b7850350feaf0590e0827bb6c5f"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/sai_xl_canny_256lora.safetensors" "/data/models/ControlNet/sai_xl_canny_256lora.safetensors" "c9269721b1f7043625e75b7de2f65a6116b2ad99895965494616f3f2c8548f54"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/sai_xl_canny_128lora.safetensors" "/data/models/ControlNet/sai_xl_canny_128lora.safetensors" "503851da8626b2682f079ecbabfa87ccaa53333a664eed6ba5fc3b33006f2a09"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/sai_xl_recolor_256lora.safetensors" "/data/models/ControlNet/sai_xl_recolor_256lora.safetensors" "ce3722939e4030428818aeeabe2b5db245b8ffed3a2d7edf15653a9ed3f206d4"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/sai_xl_recolor_128lora.safetensors" "/data/models/ControlNet/sai_xl_recolor_128lora.safetensors" "3921b1b6ff24f3296276db91417ee97fa37fb33f77487d9dd9a257c02a3b6922"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/sai_xl_sketch_256lora.safetensors" "/data/models/ControlNet/sai_xl_sketch_256lora.safetensors" "0e06faf9a2df1a0d62c72c7f968282f45c34fb562eecb193beca5eb964ccb13e"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/sai_xl_sketch_128lora.safetensors" "/data/models/ControlNet/sai_xl_sketch_128lora.safetensors" "1828f7c14e4dbc252f6a101b27542695a31911defd44c457817a80f8a53b73b6"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/sargezt_xl_softedge.safetensors" "/data/models/ControlNet/sargezt_xl_softedge.safetensors" "24e0803a8f88377f5ec0ef1582b942266e8451bae559b6d91e3660fdd5729816"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/t2i-adapter_diffusers_xl_lineart.safetensors" "/data/models/ControlNet/adapter_diffusers_xl_lineart.safetensors" "f3c203c6993c8a02114acb0856c69e95ae2c1ad4fb4f1554a376b742650828c3"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/t2i-adapter_diffusers_xl_canny.safetensors" "/data/models/ControlNet/adapter_diffusers_xl_canny.safetensors" "e00caf391600f3c4f35295cfb51814d5456751e8ec1bbca94db5ecf738c3532d"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/t2i-adapter_diffusers_xl_openpose.safetensors" "/data/models/ControlNet/adapter_diffusers_xl_openpose.safetensors" "a0d2bd581340e2f8b5d83ae9b13ba44efe2618783e0c4597e0f18411ad57e3da"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/t2i-adapter_diffusers_xl_sketch.safetensors" "/data/models/ControlNet/adapter_diffusers_xl_sketch.safetensors" "ac5ddc5306291ed45ef6bc87a91425e7f76e93a8e2333457c9adc4e6db0579cc"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/t2i-adapter_xl_canny.safetensors" "/data/models/ControlNet/adapter_xl_canny.safetensors" "58383ed789fdbdabb4847595d205685850d99e9e4be1f09db6901f4a03461673"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/t2i-adapter_xl_sketch.safetensors" "/data/models/ControlNet/adapter_xl_sketch.safetensors" "dfa631f30aacd09238aebed3875d70cc288f79880f82a1df394bd141e5f93159"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/t2i-adapter_xl_openpose.safetensors" "/data/models/ControlNet/adapter_xl_openpose.safetensors" "a5abadd721608e74717cd2e83751e983fd98a4bf1489f1667f52c3b585841cb3"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/thibaud_xl_openpose.safetensors" "/data/models/ControlNet/thibaud_xl_openpose.safetensors" "9e070426568a3c60c128ffb98c66cdc7a0ea21d0d8abb86f73564aaf2e0c6f42"
-        download_on_sha "https://huggingface.co/lllyasviel/sd_control_collection/resolve/main/thibaud_xl_openpose_256lora.safetensors" "/data/models/ControlNet/thibaud_xl_openpose_256lora.safetensors" "4d9010a861e032629d2004211bf10a617ba1e93a1cc42fc280db3d0ad1d05303"
-
-        # General Stable Diffusion Models
-        download_on_sha "https://huggingface.co/Envvi/Inkpunk-Diffusion/resolve/main/Inkpunk-Diffusion-v2.ckpt" "/data/models/Stable-diffusion/Inkpunk-Diffusion-v2.ckpt" "2182245415908822cbac065128a4c5144cc547d0701feb21241cb4e70bb5cf56"
-        download_on_sha "https://huggingface.co/webui/stable-diffusion-2-1/resolve/main/v2-1_768-ema-pruned-fp16.safetensors" "/data/models/Stable-diffusion/v2-1_768-ema-pruned-fp16.safetensors" "370234eabba70b10654f6d2508cf28f946de41c43e30ed3eb44ce5850e9c847b"
-        curl -fsSL "https://huggingface.co/webui/stable-diffusion-2-1/raw/main/v2-1_768-ema-pruned-fp16.yaml" -o "/data/models/Stable-diffusion/v2-1_768-ema-pruned-fp16.yaml"
-        download_on_sha "https://huggingface.co/stabilityai/stable-diffusion-2-1/resolve/main/v2-1_768-ema-pruned.safetensors" "/data/models/Stable-diffusion/v2-1_768-ema-pruned.safetensors" "dcd690123cfc64383981a31d955694f6acf2072a80537fdb612c8e58ec87a8ac"
-        curl -fsSL "https://raw.githubusercontent.com/Stability-AI/stablediffusion/main/configs/stable-diffusion/v2-inference.yaml" -o "/data/models/Stable-diffusion/v2-1_768-ema-pruned.yaml"
-        download_on_sha "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors" "/data/models/Stable-diffusion/sd_xl_base_1.0_0.9vae.safetensors" "e6bb9ea85bbf7bf6478a7c6d18b71246f22e95d41bcdd80ed40aa212c33cfeff"
-        download_on_sha "https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors" "/data/models/Stable-diffusion/sd_xl_refiner_1.0_0.9vae.safetensors" "8d0ce6c016004cbdacd50f937dad381d8c396628d621a7f97191470532780164"
-        download_on_sha "https://huggingface.co/fp16-guy/PicX_real/resolve/main/picX_real.safetensors" "/data/models/Stable-diffusion/picX_real.safetensors" "07919b495df62d7b1b2c6f1715669e1b8f9ce92e496de3a688b30744daece525"
-        download_on_sha "https://huggingface.co/Lykon/DreamShaper/resolve/main/DreamShaper_8_pruned.safetensors" "/data/models/Stable-diffusion/DreamShaper_8_pruned.safetensors" "879db523c30d3b9017143d56705015e15a2cb5628762c11d086fed9538abd7fd"
-        download_on_sha "https://huggingface.co/gsdf/Counterfeit-V3.0/resolve/main/Counterfeit-V3.0_fix_fp16.safetensors" "/data/models/Stable-diffusion/Counterfeit-V3.0_fix_fp16.safetensors" "a54c944e4c04e9d9ca43468ef5b90ea0408bb6264829a4980de79a768df7179f"
-        download_on_sha "https://huggingface.co/gsdf/Replicant-V3.0/resolve/main/Replicant-V3.0_fp16.safetensors" "/data/models/Stable-diffusion/Replicant-V3.0_fp16.safetensors" "cf65f48ecfd2fb6b7b8a83eb3f99448d6e85b1ef4261c2f9ecc743d0f72decf0"
-        download_on_sha "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors" "/data/models/Stable-diffusion/v1-5-pruned-emaonly.safetensors" "6ce0161689b3853acaa03779ec93eafe75a02f4ced659bee03f50797806fa2fa"
-        curl -fsSL "https://huggingface.co/runwayml/stable-diffusion-v1-5/raw/main/v1-inference.yaml" -o "/data/models/Stable-diffusion/v1-5-pruned-emaonly.yaml"
-        download_on_sha "https://huggingface.co/runwayml/stable-diffusion-inpainting/resolve/main/sd-v1-5-inpainting.ckpt" "/data/models/Stable-diffusion/sd-v1-5-inpainting.ckpt" "c6bbc15e3224e6973459ba78de4998b80b50112b0ae5b5c67113d56b4e366b19"
-        download_on_sha "https://huggingface.co/stabilityai/sdxl-turbo/resolve/main/sd_xl_turbo_1.0_fp16.safetensors" "/data/models/Stable-diffusion/sd_xl_turbo_1.0_fp16.safetensors" "e869ac7d6942cb327d68d5ed83a40447aadf20e0c3358d98b2cc9e270db0da26"
-        download_on_sha "https://huggingface.co/stabilityai/stable-video-diffusion-img2vid/resolve/main/svd.safetensors" "/data/models/Stable-diffusion/svd.safetensors" "3e0994626df395a3831de024f11b2d9d241143bb6f16e2efbacced248aa18ce0"
-        download_on_sha "https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt/resolve/main/svd_xt.safetensors" "/data/models/Stable-diffusion/svd_xt.safetensors" "b2652c23d64a1da5f14d55011b9b6dce55f2e72e395719f1cd1f8a079b00a451"
-        download_on_sha "https://huggingface.co/stabilityai/stable-cascade/resolve/main/comfyui_checkpoints/stable_cascade_stage_b.safetensors" "/data/models/Stable-diffusion/stable_cascade_stage_b.safetensors" "6c218dc948575e3b14b03dffe2014d7870ac505005770ce3abdc28e920a03c05"
-        download_on_sha "https://huggingface.co/stabilityai/stable-cascade/resolve/main/comfyui_checkpoints/stable_cascade_stage_c.safetensors" "/data/models/Stable-diffusion/stable_cascade_stage_c.safetensors" "088ddf1e444abf399007b2da2bac87791df165c69f477994f6b3c745a20904b0"
-        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-aesthetic-unclip-h-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-aesthetic-unclip-h-fp16.safetensors" "062603a01ed43b081df0c1b99f82449ba97283135810cca5fae204a32970e027"
-        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-aesthetic-unclip-l-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-aesthetic-unclip-l-fp16.safetensors" "cc1189bc5ffa0f4d7aeb5d17ac672a7f3b85e89b838e2bfa4e12426ee373f5fa"
-        download_on_sha "https://huggingface.co/comfyanonymous/wd-1.5-beta2_unCLIP/resolve/main/wd-1-5-beta2-unclip-h-fp16.safetensors" "/data/models/Stable-diffusion/wd-1-5-beta2-unclip-h-fp16.safetensors" "73720150fa784a777343df3f49ca7d18b481d2ec042982eb59e9a8eaaaebb987"
-
-        # Motion Model
-        download_on_sha "https://huggingface.co/conrevo/AnimateDiff-A1111/resolve/main/motion_module/mm_sd15_v3.safetensors" "/data/models/Motion-module/mm_sd15_v3.safetensors" "a8ca0eadb18c6ad6652bca344a458f31780901a87f765bf95a81ef9c5be55f29"
-        download_on_sha "https://huggingface.co/conrevo/AnimateDiff-A1111/resolve/main/motion_module/mm_sdxl_v10_beta.safetensors" "/data/models/Motion-module/mm_sdxl_v10_beta.safetensors" "deda6b381d44c3e60d410432fb5be4d7147460948e0edb55a7d5997804e5f6c3"
-        download_on_sha "https://huggingface.co/conrevo/AnimateDiff-A1111/resolve/main/motion_module/mm_sdxl_hs.safetensors" "/data/models/Motion-module/mm_sdxl_hs.safetensors" "a8345a99396e5be93e0f90ace4a78ec0bd85d2d7cf63e2aae747fe64288aab7b"
-        download_on_sha "https://huggingface.co/guoyww/animatediff/resolve/main/v3_sd15_mm.ckpt" "/data/models/Motion-module/v3_sd15_mm.ckpt" "2412711886f61091846f53204aabc38aa6e09356d62a9808abe4daa802168343"
-        download_on_sha "https://huggingface.co/guoyww/animatediff/resolve/main/mm_sd_v15_v2.ckpt" "/data/models/Motion-module/mm_sd_v15_v2.ckpt" "69ed0f5fef82b110aca51bcab73b21104242bc65d6ab4b8b2a2a94d31cad1bf0"
-        download_on_sha "https://huggingface.co/guoyww/animatediff/resolve/main/mm_sdxl_v10_beta.ckpt" "/data/models/Motion-module/mm_sdxl_v10_beta.ckpt" "fa4950a062e892fca50d4c441fcd6130d1ad68a621a0404d155be17580072978"
-        mkdir -p /data/config/auto/extensions/sd-webui-animatediff/model
-        mount --bind "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models/Motion-module" "/data/config/auto/extensions/sd-webui-animatediff/model"
-
-        # GAN
-        download_on_sha "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.4/GFPGANv1.4.pth" "/data/models/GFPGAN/GFPGANv1.4.pth" "e2cd4703ab14f4d01fd1383a8a8b266f9a5833dacee8e6a79d3bf21a1b6be5ad"
-        download_on_sha "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth" "/data/models/RealESRGAN/RealESRGAN_x4plus.pth" "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1"
-        download_on_sha "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth" "/data/models/RealESRGAN/RealESRGAN_x4plus_anime_6B.pth" "f872d837d3c90ed2e05227bed711af5671a6fd1c9f7d7e91c911a61f155e99da"
-
-        # Latent Upscaling
-        mkdir -p /data/models/LDSR
-        curl -fsSL https://heibox.uni-heidelberg.de/f/31a76b13ea27482981b4/?dl=1 -o "/data/models/LDSR/project.yaml"
-        download_on_sha "https://heibox.uni-heidelberg.de/f/578df07c8fc04ffbadf3/?dl=1" "/data/models/LDSR/model.ckpt" "c209caecac2f97b4bb8f4d726b70ac2ac9b35904b7fc99801e1f5e61f9210c13"
-
-        # VAE
-        download_on_sha "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.safetensors" "/data/models/VAE/vae-ft-mse-840000-ema-pruned.safetensors" "735e4c3a447a3255760d7f86845f09f937809baa529c17370d83e4c3758f3c75"
-        download_on_sha "https://huggingface.co/hakurei/waifu-diffusion-v1-4/resolve/main/vae/kl-f8-anime2.ckpt" "/data/models/VAE/kl-f8-anime2.ckpt" "df3c506e51b7ee1d7b5a6a2bb7142d47d488743c96aa778afb0f53a2cdc2d38d"
 
         # Share the models
         chmod -R 777 "$DEEPSQUARE_SHARED_WORLD_TMP/stable-diffusion-models" || true

@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../.job.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/deepsquare-io/grid/main/cli/job.schema.json
 enableLogging: true
 resources:
   tasks: 1
